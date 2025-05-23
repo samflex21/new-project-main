@@ -1,0 +1,142 @@
+/* Simple progress circles */
+.progress-circle {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background-color: #f2f2f2;
+  overflow: hidden;
+}
+
+.progress-circle-fill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: white;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-circle-icon {
+  font-size: 24px;
+}
+
+/* Progress indicators */
+.progress-blue .progress-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #4e73df;
+  transform-origin: right center;
+}
+
+.progress-blue .progress-indicator:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  background-color: #4e73df;
+  transform-origin: left center;
+  transform: rotate(calc(3.6deg * var(--progress, 0)));
+}
+
+.progress-green .progress-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #4cd964;
+  transform-origin: right center;
+}
+
+.progress-green .progress-indicator:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  background-color: #4cd964;
+  transform-origin: left center;
+  transform: rotate(calc(3.6deg * var(--progress, 0)));
+}
+
+.progress-yellow .progress-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #ff9500;
+  transform-origin: right center;
+}
+
+.progress-yellow .progress-indicator:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  background-color: #ff9500;
+  transform-origin: left center;
+  transform: rotate(calc(3.6deg * var(--progress, 0)));
+}
+
+.progress-red .progress-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #e63757;
+  transform-origin: right center;
+}
+
+.progress-red .progress-indicator:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  height: 100%;
+  background-color: #e63757;
+  transform-origin: left center;
+  transform: rotate(calc(3.6deg * var(--progress, 0)));
+}
+
+/* Card styling */
+.card-header {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.card-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.card-footer {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.card-percentage {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 5px;
+}

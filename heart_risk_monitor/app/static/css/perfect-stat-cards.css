@@ -1,0 +1,116 @@
+/* Perfect Stat Cards - exact match to screenshot */
+.stat-card {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px 15px;
+  height: 100%;
+  text-align: center;
+}
+
+.stat-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.stat-icon-container {
+  width: 55px;
+  height: 55px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon-container {
+  transform: scale(1.05);
+}
+
+.stat-icon {
+  font-size: 1.25rem;
+}
+
+/* Total patients */
+.total-patients .stat-title {
+  color: #4361ee;
+}
+
+.total-patients .stat-icon-container {
+  background-color: #f5f7ff;
+  border: 2px solid #4361ee;
+}
+
+.total-patients .stat-icon {
+  color: #4361ee;
+}
+
+/* High risk */
+.high-risk .stat-title {
+  color: #ef4444;
+}
+
+.high-risk .stat-icon-container {
+  background-color: #fff5f5;
+  border: 2px solid #ef4444;
+}
+
+.high-risk .stat-icon {
+  color: #ef4444;
+}
+
+/* Medium risk */
+.medium-risk .stat-title {
+  color: #f59e0b;
+}
+
+.medium-risk .stat-icon-container {
+  background-color: #fffbeb;
+  border: 2px solid #f59e0b;
+}
+
+.medium-risk .stat-icon {
+  color: #f59e0b;
+}
+
+/* Low risk */
+.low-risk .stat-title {
+  color: #10b981;
+}
+
+.low-risk .stat-icon-container {
+  background-color: #ecfdf5;
+  border: 2px solid #10b981;
+}
+
+.low-risk .stat-icon {
+  color: #10b981;
+}
+
+.stat-change {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.stat-change i {
+  margin-right: 2px;
+}
+
+.stat-change.increase {
+  color: #10b981;
+}
+
+.stat-change.decrease {
+  color: #ef4444;
+}

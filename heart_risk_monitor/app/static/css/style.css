@@ -1,0 +1,434 @@
+/**
+ * Heart Risk Monitor Dashboard - Custom Styles
+ * Custom styling for dashboard components and overrides
+ */
+
+/* Sidebar Layout Styles */
+#wrapper {
+    overflow-x: hidden;
+}
+
+.sidebar-wrapper {
+    min-height: 100vh;
+    width: 280px;
+    margin-left: -280px;
+    transition: margin 0.25s ease-out;
+    /* Classic Light Red Color */
+    background-color: #e05d6f !important;
+    background-image: linear-gradient(135deg, #e05d6f 0%, #d03a49 100%) !important;
+    color: #fff !important;
+    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Remove any bg-primary or classic-sidebar class effects */
+.bg-primary, .classic-sidebar {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* Override any Bootstrap background colors */
+[class*="bg-"] {
+    background-color: inherit;
+}
+
+.classic-sidebar .sidebar-heading {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.classic-sidebar .list-group-item-action {
+    color: #fff;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+    margin-bottom: 2px;
+}
+
+.classic-sidebar .list-group-item-action:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.classic-sidebar .list-group-item-action.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar Toggle State */
+#wrapper.toggled .sidebar-wrapper {
+    margin-left: 0;
+}
+
+.sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+}
+
+/* Style for filter sections in sidebar */
+.classic-sidebar .filter-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.classic-sidebar .filter-section h5 {
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.classic-sidebar label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+}
+
+.classic-sidebar .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.classic-sidebar .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+}
+
+.classic-sidebar .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+#page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .sidebar-wrapper {
+        margin-left: 0;
+    }
+
+    #page-content-wrapper {
+        min-width: 0;
+        width: calc(100% - 280px);
+    }
+
+    #wrapper.toggled .sidebar-wrapper {
+        margin-left: -280px;
+    }
+    
+    #wrapper.toggled #page-content-wrapper {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+/* Import Google Font - Nunito */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+
+/* Base Styles */
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #f8f9fc;
+}
+
+/* Card Styles */
+.card {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border: none;
+    border-radius: 0.35rem;
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.card .card-header .dropdown .dropdown-menu {
+    font-size: 0.85rem;
+}
+
+/* Border Left Utility */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* Border Card Styles */
+.border-primary {
+    border-color: #4e73df !important;
+}
+
+.border-success {
+    border-color: #1cc88a !important;
+}
+
+.border-info {
+    border-color: #36b9cc !important;
+}
+
+.border-warning {
+    border-color: #f6c23e !important;
+}
+
+.border-danger {
+    border-color: #e74a3b !important;
+}
+
+/* Background Colors */
+.bg-primary {
+    background-color: #4e73df !important;
+}
+
+.bg-success {
+    background-color: #1cc88a !important;
+}
+
+.bg-info {
+    background-color: #36b9cc !important;
+}
+
+.bg-warning {
+    background-color: #f6c23e !important;
+}
+
+.bg-danger {
+    background-color: #e74a3b !important;
+}
+
+.bg-light {
+    background-color: #f8f9fc !important;
+}
+
+.bg-dark {
+    background-color: #5a5c69 !important;
+}
+
+/* Text Colors */
+.text-primary {
+    color: #4e73df !important;
+}
+
+.text-success {
+    color: #1cc88a !important;
+}
+
+.text-info {
+    color: #36b9cc !important;
+}
+
+.text-warning {
+    color: #f6c23e !important;
+}
+
+.text-danger {
+    color: #e74a3b !important;
+}
+
+.text-gray-100 {
+    color: #f8f9fc !important;
+}
+
+.text-gray-200 {
+    color: #eaecf4 !important;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.text-gray-400 {
+    color: #d1d3e2 !important;
+}
+
+.text-gray-500 {
+    color: #b7b9cc !important;
+}
+
+.text-gray-600 {
+    color: #858796 !important;
+}
+
+.text-gray-700 {
+    color: #6e707e !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.text-gray-900 {
+    color: #3a3b45 !important;
+}
+
+/* Navbar Styles */
+.navbar {
+    padding: 0.75rem 1rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.navbar-nav .nav-item .nav-link {
+    position: relative;
+    font-size: 0.85rem;
+    font-weight: 400;
+    padding: 0.75rem 1rem;
+}
+
+.navbar-nav .nav-item .nav-link:hover,
+.navbar-nav .nav-item .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Progress Bar Styles */
+.progress {
+    height: 0.8rem;
+    font-size: 0.65rem;
+}
+
+.progress-bar {
+    height: 100%;
+    transition: width 1s ease;
+}
+
+/* Table Styles */
+.table th {
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Chart Container Styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 1rem;
+}
+
+.d3-chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 1rem;
+}
+
+/* Chart Gauge Styles */
+.chart-gauge {
+    position: relative;
+    height: 200px;
+    margin-bottom: 1rem;
+}
+
+/* Filter Styles */
+.filter-group {
+    margin-bottom: 1.5rem;
+}
+
+.filter-group .form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #5a5c69;
+}
+
+.filter-group .form-select,
+.filter-group .form-control {
+    font-size: 0.85rem;
+}
+
+/* Badge Styles */
+.badge {
+    font-weight: 600;
+    padding: 0.4em 0.65em;
+    font-size: 0.75rem;
+}
+
+/* Button Styles */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Footer Styles */
+.footer {
+    padding: 1.5rem 0;
+    border-top: 1px solid #e3e6f0;
+}
+
+/* Print Styles for Reports */
+@media print {
+    .navbar, .footer, .card-header button, .filter-group, 
+    .btn, .dropdown, .no-print {
+        display: none !important;
+    }
+    
+    body, .card, .container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .chart-container {
+        height: 400px !important;
+        page-break-inside: avoid;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+    }
+    
+    table {
+        page-break-inside: auto;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .chart-container, .d3-chart-container {
+        height: 250px;
+    }
+    
+    .navbar-brand {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .chart-container, .d3-chart-container {
+        height: 200px;
+    }
+}

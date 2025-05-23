@@ -1,0 +1,73 @@
+/* Ultra-compact card styles */
+.metrics-row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.stat-card {
+  max-width: 120px;
+  margin: 0 auto;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+.card-body.p-2 {
+  padding: 0.3rem 0.2rem !important; /* Minimal padding */
+}
+
+.chart-container.mini {
+  margin: 0 auto;
+  max-width: 45px !important;
+  height: 45px !important;
+  position: relative;
+}
+
+.chart-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.chart-icon i {
+  font-size: 0.85rem !important;
+}
+
+.total-card .chart-icon { color: #4361ee; }
+.high-risk-card .chart-icon { color: #ef4444; }
+.medium-risk-card .chart-icon { color: #f59e0b; }
+.low-risk-card .chart-icon { color: #10b981; }
+
+/* Make columns extremely narrow */
+.narrow-col {
+  padding-left: 1px !important;
+  padding-right: 1px !important;
+}
+
+/* Tiny text */
+.card-body .text-xs {
+  font-size: 0.55rem !important;
+  margin-bottom: 0.1rem !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+.card-body .h5 {
+  font-size: 0.9rem !important;
+  margin-top: 0.1rem !important;
+  margin-bottom: 0.1rem !important;
+  line-height: 1;
+}
+
+.card-body .small {
+  font-size: 0.55rem !important;
+  line-height: 1;
+}
+
+/* Remove extra margin */
+.mb-2 {
+  margin-bottom: 0.3rem !important;
+}

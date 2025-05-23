@@ -1,0 +1,111 @@
+{% macro stat_card(title, value, icon, color, percent_change=None) %}
+<div class="card h-100 shadow-sm">
+    <div class="card-body text-center">
+        <div class="circle-indicator-{{ color }} mb-3">
+            <div class="circle-icon">
+                {% if color == 'primary' %}
+                <span class="user-icon">👤</span>
+                {% elif color == 'danger' %}
+                <span class="warning-icon">⚠️</span>
+                {% elif color == 'warning' %}
+                <span class="info-icon">ℹ️</span>
+                {% elif color == 'success' %}
+                <span class="check-icon">✓</span>
+                {% else %}
+                <i class="{{ icon }}"></i>
+                {% endif %}
+            </div>
+        </div>
+        <h2 class="display-4 fw-bold">{{ value }}</h2>
+        <p class="text-muted text-uppercase fs-6">{{ title }}</p>
+        {% if percent_change is not none %}
+        <p class="small">
+            {% if percent_change > 0 %}
+            <span class="text-success">{{ percent_change }}% since last month</span>
+            {% elif percent_change < 0 %}
+            <span class="text-danger">{{ percent_change|abs }}% since last month</span>
+            {% else %}
+            <span class="text-muted">0% since last month</span>
+            {% endif %}
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro progress_card(title, value, max_value, color) %}
+<div class="card h-100">
+    <div class="card-body">
+        <h6 class="card-title text-muted text-uppercase">{{ title }}</h6>
+        <div class="h5 mb-2 font-weight-bold">{{ value }} / {{ max_value }}</div>
+        <div class="progress">
+            {% set percentage = (value / max_value * 100)|int %}
+            <div class="progress-bar bg-{{ color }}" role="progressbar" style="width: {{ percentage }}%" 
+                 aria-valuenow="{{ value }}" aria-valuemin="0" aria-valuemax="{{ max_value }}">
+                {{ percentage }}%
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro risk_card(title, risk_level, value, details=None) %}
+{% set color = 'success' if risk_level == 'low' else ('warning' if risk_level == 'medium' else 'danger') %}
+<div class="card border-{{ color }} h-100">
+    <div class="card-header bg-{{ color }} text-white">
+        <h6 class="m-0 font-weight-bold">{{ title }}</h6>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center">
+                <div class="display-4 font-weight-bold text-{{ color }}">{{ value }}</div>
+                <div class="text-uppercase small">
+                    {{ risk_level|capitalize }} Risk
+                </div>
+            </div>
+            <div class="col-md-8">
+                {% if details %}
+                <ul class="list-group list-group-flush">
+                    {% for key, item in details.items() %}
+                    <li class="list-group-item p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>{{ key|capitalize }}</span>
+                            <span class="badge bg-{{ 'success' if item.risk == 'low' else ('warning' if item.risk == 'medium' else 'danger') }}">
+                                {{ item.value }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro patient_card(patient) %}
+<div class="card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold">Patient #{{ patient.patient_ID }}</h6>
+        <a href="{{ url_for('patient.patient_detail', patient_id=patient.patient_ID) }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-user me-1"></i> View
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Age:</strong> {{ patient.age }} years</p>
+                <p><strong>Gender:</strong> {{ patient.gender }}</p>
+                {% set risk_color = 'success' if patient.risk_level|lower == 'low' else ('warning' if patient.risk_level|lower == 'medium' else 'danger') %}
+                <p><strong>Risk Level:</strong> <span class="badge bg-{{ risk_color }}">{{ patient.risk_level }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>BMI:</strong> {{ patient.BMI|round(1) }}</p>
+                <p><strong>Blood Pressure:</strong> {{ patient.SystolicBP }}/{{ patient.DiastolicBP }} mmHg</p>
+                <p><strong>Heart Rate:</strong> {{ patient.HeartRate }} BPM</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

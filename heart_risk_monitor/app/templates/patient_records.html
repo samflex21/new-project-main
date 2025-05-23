@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% from "components/cards.html" import patient_card %}
+{% from "components/filters.html" import risk_level_filter, demographic_filter %}
+
+{% block title %}Patient Records - Heart Risk Monitor{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Patient Records</h1>
+    <div>
+        <button class="btn btn-outline-primary me-2" id="refresh-patients">
+            <i class="fas fa-sync-alt me-1"></i> Refresh Data
+        </button>
+        <a href="{{ url_for('api.get_patients') }}" class="btn btn-primary" target="_blank">
+            <i class="fas fa-download me-1"></i> Export Data
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Filters Column -->
+    <div class="col-lg-3">
+        <!-- Search Box -->
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Search Patients</h6>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('patient.patient_list') }}" method="GET">
+                    <div class="mb-3">
+                        <label for="search" class="form-label">Patient ID or Name</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   placeholder="Enter search term" value="{{ search_term }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% if search_term %}
+                    <a href="{{ url_for('patient.patient_list') }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="fas fa-times me-1"></i> Clear Search
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        
+        <!-- Risk Level Filter -->
+        <form action="{{ url_for('patient.patient_list') }}" method="GET" id="filter-form">
+            {% if search_term %}
+            <input type="hidden" name="search" value="{{ search_term }}">
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Risk Level</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="risk_level" value="" id="risk-all" 
+                                  {% if risk_level == '' %}checked{% endif %}>
+                            <label class="form-check-label" for="risk-all">
+                                All Patients
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="risk_level" value="High" id="risk-high"
+                                  {% if risk_level == 'High' %}checked{% endif %}>
+                            <label class="form-check-label" for="risk-high">
+                                <span class="badge bg-danger">High Risk</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="risk_level" value="Medium" id="risk-medium"
+                                  {% if risk_level == 'Medium' %}checked{% endif %}>
+                            <label class="form-check-label" for="risk-medium">
+                                <span class="badge bg-warning">Medium Risk</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="risk_level" value="Low" id="risk-low"
+                                  {% if risk_level == 'Low' %}checked{% endif %}>
+                            <label class="form-check-label" for="risk-low">
+                                <span class="badge bg-success">Low Risk</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-filter me-1"></i> Apply Filter
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Demographics Filter -->
+            <div class="card mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Demographics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="age-range" class="form-label">Age Range</label>
+                        <select class="form-select" id="age-range" name="age_range">
+                            <option value="" selected>All Ages</option>
+                            <option value="18-29">18-29 years</option>
+                            <option value="30-44">30-44 years</option>
+                            <option value="45-59">45-59 years</option>
+                            <option value="60+">60+ years</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender-select" class="form-label">Gender</label>
+                        <select class="form-select" id="gender-select" name="gender">
+                            <option value="" selected>All</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-filter me-1"></i> Apply Demographics
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Patient Records Column -->
+    <div class="col-lg-9">
+        <!-- Patient Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Patients
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ patients|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% set high_risk_count = patients|selectattr('risk_level', 'equalto', 'High')|list|length %}
+            {% set medium_risk_count = patients|selectattr('risk_level', 'equalto', 'Medium')|list|length %}
+            {% set low_risk_count = patients|selectattr('risk_level', 'equalto', 'Low')|list|length %}
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-danger h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    High Risk
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ high_risk_count }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Medium Risk
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ medium_risk_count }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Low Risk
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ low_risk_count }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patient Records Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Patient Records</h6>
+                {% if search_term or risk_level %}
+                <div>
+                    <span class="badge bg-primary">
+                        {% if search_term %}Search: {{ search_term }}{% endif %}
+                        {% if risk_level %}Risk: {{ risk_level }}{% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if patients %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="patientTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Blood Pressure</th>
+                                <th>Cholesterol</th>
+                                <th>Risk Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td>{{ patient.patient_ID }}</td>
+                                <td>{{ patient.age }}</td>
+                                <td>{{ patient.gender }}</td>
+                                <td>{{ patient.SystolicBP }}/{{ patient.DiastolicBP }} mmHg</td>
+                                <td>{{ patient.Cholesterol }} mg/dL</td>
+                                <td>
+                                    {% if patient.risk_level|lower == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif patient.risk_level|lower == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('patient.patient_detail', patient_id=patient.patient_ID) }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-user"></i>
+                                    </a>
+                                    <a href="{{ url_for('patient.generate_report', patient_id=patient.patient_ID) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-file-medical"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-gray-300 mb-3"></i>
+                    <p class="lead">No patients found matching your criteria.</p>
+                    {% if search_term or risk_level %}
+                    <a href="{{ url_for('patient.patient_list') }}" class="btn btn-primary">
+                        <i class="fas fa-undo me-1"></i> Clear Filters
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Patient navigation">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('patient.patient_list', page=pagination.prev_num, search=search_term, risk_level=risk_level) }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                {% endif %}
+                
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        {% if page == pagination.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patient.patient_list', page=page, search=search_term, risk_level=risk_level) }}">{{ page }}</a>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('patient.patient_list', page=pagination.next_num, search=search_term, risk_level=risk_level) }}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize data table
+        if (document.getElementById('patientTable')) {
+            $('#patientTable').DataTable({
+                paging: false,
+                searching: false,
+                info: false
+            });
+        }
+        
+        // Refresh patients button
+        document.getElementById('refresh-patients')?.addEventListener('click', function() {
+            window.location.reload();
+        });
+        
+        // Highlight row on hover
+        const rows = document.querySelectorAll('#patientTable tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.classList.add('bg-light');
+            });
+            row.addEventListener('mouseleave', function() {
+                this.classList.remove('bg-light');
+            });
+        });
+    });
+</script>
+{% endblock %}

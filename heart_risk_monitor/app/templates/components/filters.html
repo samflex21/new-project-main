@@ -1,0 +1,115 @@
+{% macro date_range_filter() %}
+<div class="mb-3">
+    <label for="date-range-select" class="form-label">Select Period</label>
+    <select class="form-select" id="date-range-select">
+        <option value="7">Last 7 Days</option>
+        <option value="30" selected>Last 30 Days</option>
+        <option value="90">Last 90 Days</option>
+        <option value="180">Last 6 Months</option>
+        <option value="365">Last Year</option>
+        <option value="custom">Custom Range</option>
+    </select>
+</div>
+<div id="custom-date-range" class="d-none">
+    <div class="mb-3">
+        <label for="start-date" class="form-label">Start Date</label>
+        <input type="date" class="form-control" id="start-date">
+    </div>
+    <div class="mb-3">
+        <label for="end-date" class="form-label">End Date</label>
+        <input type="date" class="form-control" id="end-date">
+    </div>
+</div>
+{% endmacro %}
+
+{% macro risk_level_filter() %}
+<div class="mb-3">
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="all" id="risk-all" checked>
+        <label class="form-check-label" for="risk-all" style="font-family: 'Georgia', 'Times New Roman', serif; color: white;">
+            All Patients
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input risk-filter" type="checkbox" value="high" id="risk-high">
+        <label class="form-check-label" for="risk-high" style="font-family: 'Georgia', 'Times New Roman', serif; color: white;">
+            <span class="badge bg-danger" style="font-family: 'Georgia', 'Times New Roman', serif;">High Risk</span>
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input risk-filter" type="checkbox" value="medium" id="risk-medium">
+        <label class="form-check-label" for="risk-medium" style="font-family: 'Georgia', 'Times New Roman', serif; color: white;">
+            <span class="badge bg-warning" style="font-family: 'Georgia', 'Times New Roman', serif;">Medium Risk</span>
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input risk-filter" type="checkbox" value="low" id="risk-low">
+        <label class="form-check-label" for="risk-low" style="font-family: 'Georgia', 'Times New Roman', serif; color: white;">
+            <span class="badge bg-success" style="font-family: 'Georgia', 'Times New Roman', serif;">Low Risk</span>
+        </label>
+    </div>
+    <button class="btn btn-primary w-100" id="apply-risk-filter" style="font-family: 'Georgia', 'Times New Roman', serif; color: white;">
+        <i class="fas fa-filter me-1"></i> Apply Filter
+    </button>
+</div>
+{% endmacro %}
+
+{% macro demographic_filter() %}
+<div class="mb-3">
+    <label for="age-range" class="form-label">Age Range</label>
+    <select class="form-select" id="age-range">
+        <option value="all" selected>All Ages</option>
+        <option value="18-29">18-29 years</option>
+        <option value="30-44">30-44 years</option>
+        <option value="45-59">45-59 years</option>
+        <option value="60+">60+ years</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label for="gender-select" class="form-label">Gender</label>
+    <select class="form-select" id="gender-select">
+        <option value="all" selected>All Genders</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+</div>
+<button class="btn btn-primary w-100" id="apply-demographic-filter">
+    <i class="fas fa-filter me-1"></i> Apply Filter
+</button>
+{% endmacro %}
+
+{% macro patient_search() %}
+<div class="mb-3">
+    <label for="patient-search" class="form-label">Patient ID</label>
+    <div class="input-group">
+        <input type="text" class="form-control" id="patient-search" placeholder="Enter Patient ID">
+        <button class="btn btn-primary" type="button" id="search-btn">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro department_filter() %}
+<div class="mb-3">
+    <select class="form-select" id="department-select">
+        <option value="all" selected>All Departments</option>
+        <option value="cardiology">Cardiology</option>
+        <option value="internal">Internal Medicine</option>
+        <option value="emergency">Emergency</option>
+        <option value="surgery">Surgery</option>
+    </select>
+</div>
+{% endmacro %}
+
+{% macro time_period_filter() %}
+<div class="mb-3">
+    <select class="form-select" id="time-period-select">
+        <option value="last-month" selected>Last Month</option>
+        <option value="last-quarter">Last Quarter</option>
+        <option value="last-year">Last Year</option>
+        <option value="ytd">Year to Date</option>
+        <option value="all-time">All Time</option>
+    </select>
+</div>
+{% endmacro %}

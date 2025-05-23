@@ -1,0 +1,98 @@
+/* Circle progress rings that match the screenshot exactly */
+.progress-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-circle:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #f2f2f2;
+}
+
+.progress-ring-circle:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring-color) 0%, var(--ring-color) var(--progress), #f2f2f2 var(--progress), #f2f2f2 100%);
+  clip-path: circle(47% at center);
+}
+
+.ring-icon {
+  position: relative;
+  z-index: 2;
+  font-size: 22px;
+  color: #222;
+}
+
+.progress-ring-inner {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: white;
+  z-index: 1;
+}
+
+/* Ring color variations */
+.ring-blue {
+  --ring-color: #4e73df;
+  --progress: 95%;
+}
+
+.ring-red {
+  --ring-color: #4cd964;
+  --progress: 50%;
+}
+
+.ring-yellow {
+  --ring-color: #ff9500;
+  --progress: 35%;
+}
+
+.ring-green {
+  --ring-color: #e63757;
+  --progress: 25%;
+}
+
+/* Card label styling */
+.card-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.card-subtitle {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 10px;
+}
+
+.card-percentage {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-top: 5px;
+}

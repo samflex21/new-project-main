@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+{% from "components/cards.html" import risk_card %}
+{% from "components/chart_panels.html" import line_chart_panel, radar_chart_panel, gauge_chart_panel %}
+
+{% block title %}Patient {{ patient.patient_ID }} - Heart Risk Monitor{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        Patient #{{ patient.patient_ID }}
+        {% set risk_level = patient.risk_level|lower %}
+        <span class="badge bg-{{ 'success' if risk_level == 'low' else ('warning' if risk_level == 'medium' else 'danger') }}">
+            {{ patient.risk_level }}
+        </span>
+    </h1>
+    <div>
+        <a href="{{ url_for('patient.patient_list') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Patients
+        </a>
+        <a href="{{ url_for('patient.generate_report', patient_id=patient.patient_ID) }}" class="btn btn-primary">
+            <i class="fas fa-file-medical me-1"></i> Generate Report
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Patient Info Column -->
+    <div class="col-lg-4">
+        <!-- Patient Profile Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Patient Profile</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img class="img-fluid rounded-circle mb-3" style="max-width: 150px;" 
+                         src="{{ url_for('static', filename='images/profile-placeholder.png') }}" alt="Patient Profile">
+                    <h5>Patient #{{ patient.patient_ID }}</h5>
+                    <p class="text-muted">
+                        {{ patient.age }} years old, {{ patient.gender }}
+                    </p>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h6 class="font-weight-bold">Demographics</h6>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between">
+                                <span>Age:</span>
+                                <span class="font-weight-bold">{{ patient.age }} years</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Gender:</span>
+                                <span class="font-weight-bold">{{ patient.gender }}</span>
+                            </div>
+                            {% if patient.income is defined %}
+                            <div class="d-flex justify-content-between">
+                                <span>Income Level:</span>
+                                <span class="font-weight-bold">${{ patient.income|int }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <h6 class="font-weight-bold">Contact Information</h6>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between">
+                                <span>Phone:</span>
+                                <span class="font-weight-bold">555-123-4567</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Email:</span>
+                                <span class="font-weight-bold">patient{{ patient.patient_ID }}@example.com</span>
+                            </div>
+                        </div>
+                        
+                        <h6 class="font-weight-bold">Medical History</h6>
+                        <div class="mb-3">
+                            {% if history %}
+                            <div class="d-flex justify-content-between">
+                                <span>Diabetes:</span>
+                                <span class="badge bg-{{ 'danger' if history.Diabetes else 'success' }}">
+                                    {{ 'Yes' if history.Diabetes else 'No' }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Family History:</span>
+                                <span class="badge bg-{{ 'warning' if history.FamilyHistory else 'success' }}">
+                                    {{ 'Yes' if history.FamilyHistory else 'No' }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Previous Heart Problems:</span>
+                                <span class="badge bg-{{ 'danger' if history.PreviousHeartProblems else 'success' }}">
+                                    {{ 'Yes' if history.PreviousHeartProblems else 'No' }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Medication Use:</span>
+                                <span class="badge bg-{{ 'info' if history.MedicationUse else 'secondary' }}">
+                                    {{ 'Yes' if history.MedicationUse else 'No' }}
+                                </span>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No medical history available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk Score Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Risk Assessment</h6>
+            </div>
+            <div class="card-body text-center">
+                {% set risk_color = 'success' if risk_score.risk_level == 'low' else ('warning' if risk_score.risk_level == 'medium' else 'danger') %}
+                <div class="mb-3">
+                    <div class="chart-gauge" id="riskGauge" 
+                         data-value="{{ risk_score.score }}" 
+                         data-min="0" 
+                         data-max="100"
+                         data-colors="risk">
+                    </div>
+                </div>
+                
+                <h4 class="font-weight-bold text-{{ risk_color }}">
+                    {{ risk_score.score|round|int }}% Risk
+                </h4>
+                <p class="text-muted">Last updated: {{ risk_score.last_updated }}</p>
+                
+                {% if risk_score.details %}
+                <hr>
+                <div class="text-left">
+                    <h6 class="font-weight-bold">Risk Factors</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for key, item in risk_score.details.items() %}
+                        <li class="list-group-item p-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>{{ key|capitalize }}</span>
+                                <span class="badge bg-{{ 'success' if item.risk == 'low' else ('warning' if item.risk == 'medium' else 'danger') }}">
+                                    {{ item.value }}
+                                </span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Health Metrics Column -->
+    <div class="col-lg-8">
+        <!-- Vital Signs Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Vital Signs</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="#" onclick="refreshVitalSigns(); return false;">
+                            <i class="fas fa-sync-alt fa-sm fa-fw me-2 text-gray-400"></i>Refresh Data
+                        </a>
+                        <a class="dropdown-item" href="#" onclick="document.getElementById('vitalSignsCard').requestFullscreen(); return false;">
+                            <i class="fas fa-expand fa-sm fa-fw me-2 text-gray-400"></i>Fullscreen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="vitalSignsCard">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            {% set bp_class = 'success' %}
+                            {% if patient.SystolicBP > 140 or patient.DiastolicBP > 90 %}
+                                {% set bp_class = 'danger' %}
+                            {% elif patient.SystolicBP > 120 or patient.DiastolicBP > 80 %}
+                                {% set bp_class = 'warning' %}
+                            {% endif %}
+                            
+                            <h6 class="font-weight-bold">Blood Pressure 
+                                <span class="badge bg-{{ bp_class }}">{{ patient.SystolicBP }}/{{ patient.DiastolicBP }} mmHg</span>
+                            </h6>
+                            <div class="progress mb-2">
+                                {% set systolic_percent = (patient.SystolicBP / 200 * 100)|int %}
+                                <div class="progress-bar bg-{{ bp_class }}" role="progressbar" style="width: {{ systolic_percent }}%" 
+                                     aria-valuenow="{{ patient.SystolicBP }}" aria-valuemin="0" aria-valuemax="200">
+                                    {{ patient.SystolicBP }} mmHg
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span>Normal: &lt;120/80</span>
+                                <span>High: &gt;140/90</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {% set hr_class = 'success' %}
+                            {% if patient.HeartRate > 100 %}
+                                {% set hr_class = 'danger' %}
+                            {% elif patient.HeartRate > 90 or patient.HeartRate < 60 %}
+                                {% set hr_class = 'warning' %}
+                            {% endif %}
+                            
+                            <h6 class="font-weight-bold">Heart Rate 
+                                <span class="badge bg-{{ hr_class }}">{{ patient.HeartRate }} BPM</span>
+                            </h6>
+                            <div class="progress mb-2">
+                                {% set hr_percent = (patient.HeartRate / 150 * 100)|int %}
+                                <div class="progress-bar bg-{{ hr_class }}" role="progressbar" style="width: {{ hr_percent }}%" 
+                                     aria-valuenow="{{ patient.HeartRate }}" aria-valuemin="0" aria-valuemax="150">
+                                    {{ patient.HeartRate }} BPM
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span>Normal: 60-100</span>
+                                <span>High: &gt;100</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            {% set bmi_class = 'success' %}
+                            {% if patient.BMI > 30 %}
+                                {% set bmi_class = 'danger' %}
+                            {% elif patient.BMI > 25 %}
+                                {% set bmi_class = 'warning' %}
+                            {% endif %}
+                            
+                            <h6 class="font-weight-bold">BMI 
+                                <span class="badge bg-{{ bmi_class }}">{{ patient.BMI|round(1) }} kg/m²</span>
+                            </h6>
+                            <div class="progress mb-2">
+                                {% set bmi_percent = (patient.BMI / 40 * 100)|int %}
+                                <div class="progress-bar bg-{{ bmi_class }}" role="progressbar" style="width: {{ bmi_percent }}%" 
+                                     aria-valuenow="{{ patient.BMI|round(1) }}" aria-valuemin="0" aria-valuemax="40">
+                                    {{ patient.BMI|round(1) }}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span>Normal: 18.5-24.9</span>
+                                <span>Obese: &gt;30</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {% set chol_class = 'success' %}
+                            {% if patient.Cholesterol > 240 %}
+                                {% set chol_class = 'danger' %}
+                            {% elif patient.Cholesterol > 200 %}
+                                {% set chol_class = 'warning' %}
+                            {% endif %}
+                            
+                            <h6 class="font-weight-bold">Cholesterol 
+                                <span class="badge bg-{{ chol_class }}">{{ patient.Cholesterol }} mg/dL</span>
+                            </h6>
+                            <div class="progress mb-2">
+                                {% set chol_percent = (patient.Cholesterol / 300 * 100)|int %}
+                                <div class="progress-bar bg-{{ chol_class }}" role="progressbar" style="width: {{ chol_percent }}%" 
+                                     aria-valuenow="{{ patient.Cholesterol }}" aria-valuemin="0" aria-valuemax="300">
+                                    {{ patient.Cholesterol }}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span>Normal: &lt;200</span>
+                                <span>High: &gt;240</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Vitals Timeline Chart -->
+        {{ line_chart_panel('Vital Signs Timeline', 'vitalTimelineChart', 
+           'Historical trends of vital signs over time.') }}
+        
+        <!-- Lab Results Chart -->
+        {{ radar_chart_panel('Lab Results', 'labResultsChart',
+           'Current lab results compared to normal ranges.') }}
+        
+        <!-- Medical Notes -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Medical Notes</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Annual Checkup</h6>
+                            <small class="text-muted">3 months ago</small>
+                        </div>
+                        <p class="mb-1">Patient reported occasional chest discomfort after strenuous activity. Recommended stress test and dietary modifications.</p>
+                        <small class="text-muted">Dr. Smith - Cardiology</small>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Lab Results Review</h6>
+                            <small class="text-muted">6 months ago</small>
+                        </div>
+                        <p class="mb-1">Cholesterol levels elevated. Prescribed statin medication and recommended lifestyle changes. Follow-up in 3 months.</p>
+                        <small class="text-muted">Dr. Johnson - Internal Medicine</small>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Initial Consultation</h6>
+                            <small class="text-muted">1 year ago</small>
+                        </div>
+                        <p class="mb-1">New patient intake. Family history of heart disease noted. Baseline readings established. Recommended regular monitoring.</p>
+                        <small class="text-muted">Dr. Williams - Primary Care</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize gauge chart
+        initializeGaugeCharts();
+        
+        // Initialize vitals timeline chart
+        initializeVitalsTimelineChart();
+        
+        // Initialize lab results chart
+        initializeLabResultsChart();
+    });
+    
+    function initializeVitalsTimelineChart() {
+        const ctx = document.getElementById('vitalTimelineChart').getContext('2d');
+        
+        // Mock data for demonstration
+        const dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        
+        // Generate realistic data based on current values with small variations
+        const systolicBP = {{ patient.SystolicBP }};
+        const diastolicBP = {{ patient.DiastolicBP }};
+        const heartRate = {{ patient.HeartRate }};
+        
+        const systolicData = [];
+        const diastolicData = [];
+        const heartRateData = [];
+        
+        for (let i = 0; i < 6; i++) {
+            // Generate random variations within ±5%
+            const systolicVar = systolicBP * (1 + (Math.random() * 0.1 - 0.05));
+            const diastolicVar = diastolicBP * (1 + (Math.random() * 0.1 - 0.05));
+            const heartRateVar = heartRate * (1 + (Math.random() * 0.1 - 0.05));
+            
+            systolicData.push(Math.round(systolicVar));
+            diastolicData.push(Math.round(diastolicVar));
+            heartRateData.push(Math.round(heartRateVar));
+        }
+        
+        // Show upward trend for high risk patients
+        if ('{{ patient.risk_level|lower }}' === 'high') {
+            // Add slight upward trend for high risk patients
+            for (let i = 0; i < systolicData.length; i++) {
+                systolicData[i] = Math.round(systolicData[i] * (1 + i * 0.01));
+                diastolicData[i] = Math.round(diastolicData[i] * (1 + i * 0.01));
+            }
+        }
+        
+        window.vitalTimelineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Systolic BP',
+                        data: systolicData,
+                        borderColor: '#e74a3b',
+                        backgroundColor: 'rgba(231, 74, 59, 0.05)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Diastolic BP',
+                        data: diastolicData,
+                        borderColor: '#f6c23e',
+                        backgroundColor: 'rgba(246, 194, 62, 0.05)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Heart Rate',
+                        data: heartRateData,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+    
+    function initializeLabResultsChart() {
+        const ctx = document.getElementById('labResultsChart').getContext('2d');
+        
+        const cholesterol = {{ patient.Cholesterol }};
+        const bloodSugar = {{ patient.BloodSugar }};
+        const bmi = {{ patient.BMI }};
+        const systolicBP = {{ patient.SystolicBP }};
+        
+        // Normalize values relative to normal range (convert to 0-100 scale)
+        const normalizedCholesterol = Math.min(100, (cholesterol / 200) * 75);
+        const normalizedBloodSugar = Math.min(100, (bloodSugar / 100) * 75);
+        const normalizedBMI = Math.min(100, (bmi / 25) * 75);
+        const normalizedSystolicBP = Math.min(100, (systolicBP / 120) * 75);
+        
+        window.labResultsChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Cholesterol', 'Blood Sugar', 'BMI', 'Blood Pressure', 'Heart Rate'],
+                datasets: [{
+                    label: 'Current Values',
+                    data: [
+                        normalizedCholesterol,
+                        normalizedBloodSugar,
+                        normalizedBMI,
+                        normalizedSystolicBP,
+                        Math.min(100, ({{ patient.HeartRate }} / 80) * 75)
+                    ],
+                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                    borderColor: '#4e73df',
+                    pointBackgroundColor: '#4e73df',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#4e73df'
+                }, {
+                    label: 'Normal Range',
+                    data: [75, 75, 75, 75, 75],
+                    backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                    borderColor: '#1cc88a',
+                    pointBackgroundColor: '#1cc88a',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#1cc88a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                let value = context.raw;
+                                
+                                // Convert normalized values back to actual values for tooltips
+                                if (context.datasetIndex === 0) {
+                                    const actualValues = [
+                                        {{ patient.Cholesterol }},
+                                        {{ patient.BloodSugar }},
+                                        {{ patient.BMI|round(1) }},
+                                        {{ patient.SystolicBP }},
+                                        {{ patient.HeartRate }}
+                                    ];
+                                    value = actualValues[context.dataIndex];
+                                    
+                                    // Add units
+                                    const units = ['mg/dL', 'mg/dL', 'kg/m²', 'mmHg', 'BPM'];
+                                    return `${label}: ${value} ${units[context.dataIndex]}`;
+                                }
+                                
+                                return `${label}: ${value}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function refreshVitalSigns() {
+        // In a real application, this would fetch updated data from the server
+        // For demonstration, we'll just show a toast notification
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed bottom-0 end-0 p-3';
+        toast.style.zIndex = '5';
+        toast.innerHTML = `
+            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Notification</strong>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Vital signs data refreshed successfully.
+                </div>
+            </div>
+        `;
+        
+        // Add to document
+        document.body.appendChild(toast);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 3000);
+    }
+</script>
+{% endblock %}

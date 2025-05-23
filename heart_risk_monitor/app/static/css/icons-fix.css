@@ -1,0 +1,49 @@
+/* Icon Fix CSS - Override any previous font settings for icons */
+
+/* Reset all FontAwesome icon fonts to ensure proper display */
+.fa,
+.fas,
+.far,
+.fal,
+.fab,
+.fa-solid,
+.fa-regular,
+.fa-light,
+.fa-thin,
+.fa-duotone,
+.fa-brands,
+.material-icons {
+    font-family: 'Font Awesome 6 Free' !important; /* Force FontAwesome font family */
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Special overrides for specific icons in the sidebar */
+#sidebar .fa-chart-line,
+#sidebar .fa-chart-pie,
+#sidebar .fa-users,
+#sidebar .fa-heartbeat,
+#sidebar .fa-search,
+#sidebar .fa-filter,
+#sidebar .fa-sync-alt,
+#sidebar .fa-download,
+#sidebar .fa-bars {
+    font-family: FontAwesome !important;
+    color: white !important;
+    font-size: 16px !important;
+}
+
+/* All other text in the sidebar should use our classic font */
+#sidebar span:not(.fa):not(.fas):not(.far):not(.fab),
+#sidebar a span,
+#sidebar .nav-link span,
+#sidebar label,
+#sidebar .form-check-label {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif !important;
+    color: white !important;
+}

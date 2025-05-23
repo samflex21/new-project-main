@@ -1,0 +1,64 @@
+/* Solid circles - simple and guaranteed to work */
+.stat-card {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: white;
+}
+
+.solid-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.solid-circle-icon {
+  color: white;
+  font-size: 24px;
+}
+
+.circle-blue {
+  background-color: #4e73df;
+}
+
+.circle-green {
+  background-color: #4cd964;
+}
+
+.circle-yellow {
+  background-color: #ff9500;
+}
+
+.circle-red {
+  background-color: #e63757;
+}
+
+.card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.card-value {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.card-text {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.card-percent {
+  font-size: 16px;
+  font-weight: bold;
+}

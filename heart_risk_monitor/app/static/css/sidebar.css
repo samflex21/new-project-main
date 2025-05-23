@@ -1,0 +1,239 @@
+/* Dedicated Sidebar Styling - Clean Blackgray Theme */
+body #wrapper #sidebar,
+#wrapper #sidebar {
+    min-height: 100vh !important;
+    width: 280px !important;
+    background-color: #2d3436 !important; /* Dark blackgray color */
+    background-image: linear-gradient(to bottom, #2d3436, #222831) !important; /* Subtle gradient */
+    color: #f5f6fa !important; /* Light gray text */
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2) !important;
+    position: fixed !important;
+    z-index: 100 !important;
+    top: 0 !important;
+    left: 0 !important;
+    transition: margin 0.25s ease-out !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    overflow-y: auto !important;
+    position: relative !important;
+}
+
+/* Override any Bootstrap classes */
+.sidebar-wrapper,
+.bg-primary,
+.bg-gradient,
+.bg-dark,
+#sidebar.bg-dark,
+#sidebar.bg-primary {
+    background-color: #2d3436 !important;
+    background-image: linear-gradient(to bottom, #2d3436, #222831) !important;
+}
+
+/* Logo section */
+.sidebar-logo {
+    border-bottom: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* All text in sidebar should use classic font and white color */
+#sidebar * {
+    color: #ffffff !important; /* Pure white for all text */
+    font-family: 'Georgia', 'Times New Roman', serif !important; /* Classic serif font */
+}
+
+#sidebar a,
+#sidebar .nav-link {
+    color: white !important;
+    padding: 0.5rem 1rem !important;
+    border-left: 3px solid transparent !important;
+    transition: all 0.3s !important;
+    font-size: 0.8rem !important;
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+#sidebar h6,
+#sidebar .sidebar-heading,
+#sidebar .text-primary {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.85rem !important;
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+#sidebar .fas,
+#sidebar .fa,
+#sidebar .far {
+    color: #ffffff !important;
+    margin-right: 15px !important;
+    width: 20px !important;
+    text-align: center !important;
+}
+
+/* Navigation styling */
+#sidebar .nav-link {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease !important;
+    padding-top: 13px !important;
+    padding-bottom: 13px !important;
+    padding-left: 20px !important;
+    position: relative !important;
+}
+
+#sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+#sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+#sidebar .nav-link.active::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+    width: 4px !important;
+    background-color: white !important;
+}
+
+#sidebar .nav-link.active .fas,
+#sidebar .nav-link.active .fa,
+#sidebar .nav-link.active .far {
+    color: white !important;
+}
+
+/* Search box styling */
+.sidebar-search {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 1rem !important;
+}
+
+.sidebar-search-input {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border-radius: 4px 0 0 4px !important;
+}
+
+.sidebar-search-input:focus {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.sidebar-search-btn {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border-radius: 0 4px 4px 0 !important;
+}
+
+/* Filter area */
+.sidebar-filters {
+    color: white !important;
+}
+
+/* Filter section headings */
+.sidebar-filters h5, 
+.sidebar-filters h6 {
+    color: white !important;
+    font-weight: 600 !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.85rem !important;
+}
+
+/* Filter buttons */
+.sidebar-filters .btn-primary {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.3s !important;
+}
+
+.sidebar-filters .btn-primary:hover {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.sidebar-filters .btn-outline-primary {
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.sidebar-filters .btn-outline-primary:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+}
+
+/* Form controls with classic fonts */
+.sidebar-filters .form-control,
+.sidebar-filters .form-select,
+.sidebar-filters label,
+.sidebar-filters .btn,
+.sidebar-filters .form-label {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    color: #ffffff !important;
+}
+
+.sidebar-filters .form-control {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.sidebar-filters .form-control:focus {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-filters .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+.sidebar-filters .form-select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+.sidebar-filters .form-select:focus {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Content wrapper adjustment */
+#page-content-wrapper {
+    margin-left: 280px !important;
+    width: calc(100% - 280px) !important;
+}
+
+/* For mobile toggle */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -280px !important;
+    }
+    
+    #page-content-wrapper {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    #wrapper.toggled #sidebar {
+        margin-left: 0 !important;
+    }
+    
+    #wrapper.toggled #page-content-wrapper {
+        margin-left: 280px !important;
+    }
+}

@@ -1,0 +1,1049 @@
+{% extends "base.html" %}
+{% from "components/cards.html" import stat_card, risk_card %}
+{% from "components/chart_panels.html" import line_chart_panel, bar_chart_panel, radar_chart_panel, pie_chart_panel %}
+{% from "components/filters.html" import date_range_filter, risk_level_filter, patient_search %}
+
+{% block title %}Patient Risk Monitoring - Heart Risk Monitor{% endblock %}
+
+{% block page_title %}Patient Risk Monitoring{% endblock %}
+
+{% block sidebar_filters %}
+<div class="filter-section">
+    <h5><i class="fas fa-filter me-2"></i>Filters</h5>
+    
+    <!-- Date Range Filter -->
+    <div class="mb-4">
+        <h6 class="mb-3">Date Range</h6>
+        {{ date_range_filter() }}
+    </div>
+    
+    <!-- Risk Level Filter -->
+    <div class="mb-4">
+        <h6 class="mb-3">Risk Level</h6>
+        {{ risk_level_filter() }}
+    </div>
+    
+    <!-- Patient Search -->
+    <div class="mb-4">
+        <h6 class="mb-3">Patient Search</h6>
+        {{ patient_search() }}
+    </div>
+    
+    <div class="d-grid gap-2 mt-4">
+        <button class="btn btn-light" id="apply-filters">
+            <i class="fas fa-check me-2"></i>Apply Filters
+        </button>
+        <button class="btn btn-outline-light" id="reset-filters">
+            <i class="fas fa-undo me-2"></i>Reset Filters
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- No SVG gradient definitions needed with direct colors -->
+
+<!-- Metrics and Video Row -->
+<div class="row mb-4">
+    <!-- Video Section (left 40%) -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-body p-0 d-flex justify-content-center align-items-center" style="height: 220px; overflow: hidden;">
+                <video style="height: 100%; width: 100%; object-fit: contain;" autoplay loop muted playsinline>
+                    <source src="{{ url_for('static', filename='videos/videoplayback.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metrics Cards Section (right 60%) -->
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">TOTAL PATIENTS</div>
+                        <div class="chart-container" style="position: relative; height: 120px; width: 120px; margin: 0 auto;">
+                            <canvas id="totalPatientsChart" width="120" height="120"></canvas>
+                            <div class="chart-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #4361ee;">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">5,443</div>
+                        <div class="text-success text-center"><i class="fas fa-arrow-up"></i> 50% since yesterday</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">HIGH RISK PATIENTS</div>
+                        <div class="chart-container" style="position: relative; height: 120px; width: 120px; margin: 0 auto;">
+                            <canvas id="highRiskChart" width="120" height="120"></canvas>
+                            <div class="chart-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ef4444;">
+                                <i class="fas fa-heartbeat fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">756</div>
+                        <div class="text-danger text-center"><i class="fas fa-arrow-down"></i> 35% since yesterday</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">MEDIUM RISK PATIENTS</div>
+                        <div class="chart-container" style="position: relative; height: 120px; width: 120px; margin: 0 auto;">
+                            <canvas id="mediumRiskChart" width="120" height="120"></canvas>
+                            <div class="chart-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #f59e0b;">
+                                <i class="fas fa-bolt fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">1,238</div>
+                        <div class="text-success text-center"><i class="fas fa-arrow-up"></i> 12% since yesterday</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">LOW RISK PATIENTS</div>
+                        <div class="chart-container" style="position: relative; height: 120px; width: 120px; margin: 0 auto;">
+                            <canvas id="lowRiskChart" width="120" height="120"></canvas>
+                            <div class="chart-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #10b981;">
+                                <i class="fas fa-heart fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">3,449</div>
+                        <div class="text-success text-center"><i class="fas fa-arrow-up"></i> 27% since yesterday</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        
+        <!-- Risk Distribution and Vital Signs Row -->
+        <div class="row">
+            <div class="col-xl-4 mb-4">
+                {{ pie_chart_panel('Heart Risk Distribution', 'riskDistributionChart', 
+                   'Distribution of patients by heart attack risk level.') }}
+            </div>
+            <div class="col-xl-8 mb-4">
+                {{ line_chart_panel('Vital Signs Timeline', 'vitalSignsChart', 
+                   'Trends of key vital signs over time.') }}
+            </div>
+        </div>
+        
+        <!-- Lab Results and Risk Score Row -->
+        <div class="row">
+            <div class="col-xl-6 mb-4">
+                {{ radar_chart_panel('Lab Results Analysis', 'labResultsChart',
+                   'Comparison of lab results against normal ranges.') }}
+            </div>
+            <div class="col-xl-6 mb-4">
+                {{ bar_chart_panel('Patient Metrics Comparison', 'patientComparisonChart',
+                   'Comparison of patient metrics against population averages.') }}
+            </div>
+        </div>
+        
+        <!-- High Risk Patients Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-white">High Risk Patients</h6>
+                <a href="{{ url_for('patient.patient_list', risk_level='high') }}" class="btn btn-sm btn-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="highRiskTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Risk Score</th>
+                                <th>Key Factors</th>
+                                <th>Risk Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- This will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Sample data from the server
+    var sampleData = null;
+    var dashboardData = null;
+    
+    /* Set the sample data from server if available */
+    {% if sample_data %}
+    sampleData = {{ sample_data|tojson|safe }};
+    {% endif %}
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize charts
+        initializeAnalyticalDashboard();
+        
+        // Initialize circular indicators
+        initializeCircularCharts();
+        
+        // Set up filter events
+        // Add event listeners safely (with null checks)
+        const dateRangeSelect = document.getElementById('date-range-select');
+        if (dateRangeSelect) {
+            dateRangeSelect.addEventListener('change', function() {
+                const customDateRange = document.getElementById('custom-date-range');
+                if (customDateRange) {
+                    if (this.value === 'custom') {
+                        customDateRange.classList.remove('d-none');
+                    } else {
+                        customDateRange.classList.add('d-none');
+                    }
+                }
+            });
+        }
+        
+        // Add safe event listeners to buttons
+        const applyDateFilterBtn = document.getElementById('apply-date-filter');
+        if (applyDateFilterBtn) {
+            applyDateFilterBtn.addEventListener('click', fetchDashboardData);
+        }
+        
+        const applyRiskFilterBtn = document.getElementById('apply-risk-filter');
+        if (applyRiskFilterBtn) {
+            applyRiskFilterBtn.addEventListener('click', fetchDashboardData);
+        }
+        
+        const searchBtn = document.getElementById('search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', searchPatient);
+        }
+        
+        const refreshDataBtn = document.getElementById('refresh-data');
+        if (refreshDataBtn) {
+            refreshDataBtn.addEventListener('click', fetchDashboardData);
+        }
+        
+        // Initial data fetch
+        fetchDashboardData();
+        
+        // Directly populate high risk table with mock data to ensure it's visible
+        console.log('Directly populating high risk table with mock data...');
+        updateHighRiskTable(getMockPatientData());
+    });
+    
+    function initializeAnalyticalDashboard() {
+        try {
+            // Risk Distribution Pie Chart
+            const riskCtx = document.getElementById('riskDistributionChart');
+            if (riskCtx) {
+                window.riskDistributionChart = new Chart(riskCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                        datasets: [{
+                            data: [54, 42, 28], // Default values
+                            backgroundColor: [
+                                '#4cc9f0', // Medical blue for low risk
+                                '#7209b7', // Medical purple for medium risk
+                                '#f72585'  // Medical pink/red for high risk
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            hoverBackgroundColor: [
+                                '#3db5db', // Slightly darker on hover
+                                '#6508a3', 
+                                '#e01e75'
+                            ],
+                            hoverBorderColor: '#ffffff',
+                            hoverBorderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        radius: '90%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        family: 'Poppins, sans-serif',
+                                        size: 12,
+                                        weight: 'bold'
+                                    },
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    boxWidth: 8
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                titleColor: '#333',
+                                bodyColor: '#333',
+                                bodyFont: {
+                                    family: 'Poppins, sans-serif'
+                                },
+                                borderColor: '#ddd',
+                                borderWidth: 1,
+                                displayColors: true,
+                                boxPadding: 8,
+                                cornerRadius: 6
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Vital Signs Timeline Chart
+            const vitalsCtx = document.getElementById('vitalSignsChart');
+            if (vitalsCtx) {
+                // Default mock data for the timeline
+                const dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                const systolicData = [125, 128, 130, 135, 132, 138];
+                const diastolicData = [82, 85, 84, 88, 86, 90];
+                const heartRateData = [75, 78, 80, 77, 82, 85];
+                
+                window.vitalSignsChart = new Chart(vitalsCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: 'Systolic BP',
+                                data: systolicData,
+                                borderColor: '#4e73df',
+                                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Diastolic BP',
+                                data: diastolicData,
+                                borderColor: '#1cc88a',
+                                backgroundColor: 'rgba(28, 200, 138, 0.05)',
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Heart Rate',
+                                data: heartRateData,
+                                borderColor: '#e74a3b',
+                                backgroundColor: 'rgba(231, 74, 59, 0.05)',
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Lab Results Radar Chart
+            const labCtx = document.getElementById('labResultsChart');
+            if (labCtx) {
+                // Default mock data for lab results
+                const labData = [220, 110, 170, 140, 28];
+                
+                window.labResultsChart = new Chart(labCtx.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Cholesterol', 'Blood Sugar', 'Triglycerides', 'Systolic BP', 'BMI'],
+                        datasets: [{
+                            label: 'Current Values',
+                            data: labData,
+                            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                            borderColor: '#4e73df',
+                            pointBackgroundColor: '#4e73df',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#4e73df'
+                        }, {
+                            label: 'Normal Range',
+                            data: [200, 100, 150, 120, 25],
+                            backgroundColor: 'rgba(28, 200, 138, 0.2)',
+                            borderColor: '#1cc88a',
+                            pointBackgroundColor: '#1cc88a',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#1cc88a'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 300
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Patient Metrics Comparison Chart
+            const comparisonCtx = document.getElementById('patientComparisonChart');
+            if (comparisonCtx) {
+                // Default mock data for patient comparison
+                const patientData = [28, 138, 90, 220, 110];
+                const populationData = [25, 120, 80, 190, 100];
+                
+                window.patientComparisonChart = new Chart(comparisonCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['BMI', 'Systolic BP', 'Diastolic BP', 'Cholesterol', 'Blood Sugar'],
+                        datasets: [{
+                            label: 'Selected Patient',
+                            data: patientData,
+                            backgroundColor: '#4e73df'
+                        }, {
+                            label: 'Population Average',
+                            data: populationData,
+                            backgroundColor: '#1cc88a'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error initializing analytical dashboard:', error);
+        }
+    }
+    
+    function fetchDashboardData() {
+        const dateRange = document.getElementById('date-range-select')?.value || 'week';
+        let startDate = null;
+        let endDate = null;
+        let riskLevel = [];
+        
+        // Get custom date range if selected
+        if (dateRange === 'custom') {
+            startDate = document.getElementById('start-date').value;
+            endDate = document.getElementById('end-date').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+        }
+        
+        // Get selected risk levels
+        document.querySelectorAll('input[name="risk-level"]:checked').forEach(checkbox => {
+            riskLevel.push(checkbox.value);
+        });
+        
+        console.log('Fetching dashboard data...');
+        
+        // Build the query parameters
+        const params = new URLSearchParams();
+        params.append('date_range', dateRange);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        if (riskLevel.length > 0) {
+            riskLevel.forEach(level => params.append('risk_level', level));
+        }
+        
+        // Check if we have sample data passed from the server
+        if (sampleData) {
+            console.log('Using sample data from server');
+            // Use the sample data provided by the route
+            updateDashboardData(sampleData);
+            
+            // Also update high risk table with the patient data from sample data
+            if (sampleData.patient_data && Array.isArray(sampleData.patient_data)) {
+                console.log('Using patient data from sample data');
+                updateHighRiskTable(sampleData.patient_data);
+            } else {
+                console.log('No patient data in sample data, using mock data');
+                updateHighRiskTable(getMockPatientData());
+            }
+            return;
+        }
+        
+        // First, fetch dashboard chart data
+        console.log('Fetching dashboard data...');
+        fetchDashboardChartData()
+            .then(chartData => {
+                updateDashboardData(chartData);
+                
+                // Then fetch high-risk patients data separately
+                console.log('Fetching high-risk patients data...');
+                return fetchHighRiskPatients();
+            })
+            .then(patientData => {
+                if (patientData && Array.isArray(patientData)) {
+                    console.log('High-risk patients data fetched successfully:', patientData);
+                    updateHighRiskTable(patientData);
+                } else {
+                    console.warn('No patient data returned, using mock data');
+                    updateHighRiskTable(getMockPatientData());
+                }
+            })
+            .catch(error => {
+                console.error('Error in fetch chain:', error);
+                // Fallback to mock data
+                const mockData = getMockDashboardData();
+                updateDashboardData(mockData);
+                
+                console.log('Updating high risk table with mock data due to error...');
+                updateHighRiskTable(getMockPatientData());
+            });
+    }
+    
+    // Function to fetch dashboard chart data
+    function fetchDashboardChartData() {
+        // For now, return a promise with mock data
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(getMockDashboardData());
+            }, 500); // Simulate network delay
+            
+            // In production, this would be:
+            // return fetch('/api/dashboard/charts').then(response => response.json());
+        });
+    }
+    
+    // Function to fetch high-risk patients data
+    function fetchHighRiskPatients() {
+        // For now, return a promise with mock data
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(getMockPatientData());
+            }, 800); // Simulate network delay
+            
+            // In production, this would be:
+            // return fetch('/api/patients/high-risk').then(response => response.json());
+        });
+    }
+    
+    function updateDashboardData(data) {
+        try {
+            console.log('Updating dashboard with data:', data);
+            
+            // Update risk distribution chart
+            if (window.riskDistributionChart) {
+                let riskLabels = ['Low Risk', 'Medium Risk', 'High Risk'];
+                let riskData = [54, 42, 28]; // Default values
+                
+                if (data.risk_distribution && Array.isArray(data.risk_distribution)) {
+                    riskLabels = [];
+                    riskData = [];
+                    
+                    for (const item of data.risk_distribution) {
+                        riskLabels.push(`${item.risk_level} Risk`);
+                        riskData.push(item.count);
+                    }
+                }
+                
+                window.riskDistributionChart.data.labels = riskLabels;
+                window.riskDistributionChart.data.datasets[0].data = riskData;
+                window.riskDistributionChart.update();
+                console.log('Risk distribution chart updated');
+            } else {
+                console.warn('Risk distribution chart not initialized');
+            }
+            
+            // Update vital signs chart
+            if (window.vitalSignsChart) {
+                const dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                const systolicData = [125, 128, 130, 135, 132, 138];
+                const diastolicData = [82, 85, 84, 88, 86, 90];
+                const heartRateData = [75, 78, 80, 77, 82, 85];
+                
+                // Use actual data if available
+                if (data.vital_signs_timeline) {
+                    // Process actual data
+                } 
+                
+                window.vitalSignsChart.data.labels = dates;
+                window.vitalSignsChart.data.datasets[0].data = systolicData;
+                window.vitalSignsChart.data.datasets[1].data = diastolicData;
+                window.vitalSignsChart.data.datasets[2].data = heartRateData;
+                window.vitalSignsChart.update();
+                console.log('Vital signs chart updated');
+            } else {
+                console.warn('Vital signs chart not initialized');
+            }
+            
+            // Update lab results chart
+            if (window.labResultsChart) {
+                const labData = [220, 110, 170, 140, 28];
+                
+                // Use actual data if available
+                if (data.metrics && data.metrics.lab_stats) {
+                    // Process actual data
+                }
+                
+                window.labResultsChart.data.datasets[0].data = labData;
+                window.labResultsChart.update();
+                console.log('Lab results chart updated');
+            } else {
+                console.warn('Lab results chart not initialized');
+            }
+            
+            // Update comparison chart
+            if (window.patientComparisonChart) {
+                const chartPatientData = [28, 138, 90, 220, 110];
+                const populationData = [25, 120, 80, 190, 100];
+                
+                // Use actual data if available
+                if (data.metrics) {
+                    // Process actual data
+                }
+                
+                window.patientComparisonChart.data.datasets[0].data = chartPatientData;
+                window.patientComparisonChart.data.datasets[1].data = populationData;
+                window.patientComparisonChart.update();
+                console.log('Patient comparison chart updated');
+            } else {
+                console.warn('Patient comparison chart not initialized');
+            }
+            
+            // We don't update the high risk patients table here anymore
+            // That's now handled separately by fetchHighRiskPatients() function
+        } catch (error) {
+            console.error('Error updating dashboard data:', error);
+            alert('There was an error updating the dashboard. Please refresh the page and try again.');
+        }
+    }
+    
+    function updateHighRiskTable(patientData) {
+        try {
+            console.log('Starting to update high risk table with fetched data...');
+            const tableBody = document.querySelector('#highRiskTable tbody');
+            if (!tableBody) {
+                console.error('High risk table body not found');
+                return;
+            }
+            
+            // Clear the table first
+            tableBody.innerHTML = '';
+            
+            // Validate the patient data
+            if (!patientData || !Array.isArray(patientData) || patientData.length === 0) {
+                console.warn('No patient data provided or invalid data format');
+                // Show a message in the table
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" class="text-center">No patient data available</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            console.log('Processing patient data:', patientData.length, 'records');
+            
+            // Determine high risk patients based on possible database structures
+            let highRiskPatients = [];
+            
+            // Try different possible risk level fields based on our database structure
+            highRiskPatients = patientData.filter(p => {
+                // Direct risk_level field
+                if (p.risk_level && p.risk_level.toLowerCase() === 'high') {
+                    return true;
+                }
+                
+                // SQLite structure: RiskAssessment.HeartAttackRiskText
+                if (p.HeartAttackRiskText && p.HeartAttackRiskText.toLowerCase() === 'high') {
+                    return true;
+                }
+                
+                // MongoDB structure: riskAssessment.heartAttackRiskText
+                if (p.riskAssessment && 
+                    p.riskAssessment.heartAttackRiskText && 
+                    p.riskAssessment.heartAttackRiskText.toLowerCase() === 'high') {
+                    return true;
+                }
+                
+                return false;
+            });
+            
+            console.log('Found high risk patients:', highRiskPatients.length);
+            
+            // If no high risk patients, show message
+            if (highRiskPatients.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" class="text-center">No high-risk patients found</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Display top 5 high risk patients
+            const patientsToShow = highRiskPatients.slice(0, 5);
+            
+            // Add each patient to the table
+            for (const patient of patientsToShow) {
+                const row = document.createElement('tr');
+                
+                // Handle different data formats that might come from the database
+                const patientId = patient.patient_ID || patient.patientId || patient.patient_id || patient.id || 'N/A';
+                const patientName = patient.name || `Patient ${patientId}`;
+                const patientAge = patient.age || 'N/A';
+                
+                // Get risk score from different possible fields
+                let riskScore = 'High';
+                if (patient.risk_score) {
+                    riskScore = patient.risk_score;
+                } else if (patient.score) {
+                    riskScore = patient.score;
+                }
+                
+                // Determine key factors based on patient data
+                let keyFactors = 'Multiple factors';
+                if (patient.key_factors) {
+                    keyFactors = patient.key_factors;
+                } else {
+                    // Generate key factors based on available data
+                    const factors = [];
+                    
+                    // Check vitals
+                    if (patient.SystolicBP > 140 || patient.DiastolicBP > 90) {
+                        factors.push('High BP');
+                    }
+                    if (patient.BMI > 30) {
+                        factors.push('Obesity');
+                    }
+                    if (patient.Cholesterol > 200) {
+                        factors.push('Cholesterol');
+                    }
+                    if (patient.BloodSugar > 120) {
+                        factors.push('Blood Sugar');
+                    }
+                    
+                    // Check lifestyle factors
+                    if (patient.lifestyle) {
+                        if (patient.lifestyle.smoking) factors.push('Smoking');
+                        if (patient.lifestyle.alcoholConsumption) factors.push('Alcohol');
+                        if (patient.lifestyle.obesity) factors.push('Obesity');
+                    }
+                    
+                    // Check medical history
+                    if (patient.medicalHistory) {
+                        if (patient.medicalHistory.diabetes) factors.push('Diabetes');
+                        if (patient.medicalHistory.familyHistory) factors.push('Family History');
+                        if (patient.medicalHistory.previousHeartProblems) factors.push('Previous Heart Issues');
+                    }
+                    
+                    if (factors.length > 0) {
+                        keyFactors = factors.slice(0, 3).join(', ');
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td>${patientId}</td>
+                    <td>${patientName}</td>
+                    <td>${patientAge}</td>
+                    <td>${riskScore}</td>
+                    <td>${keyFactors}</td>
+                    <td><span class="badge bg-danger">High</span></td>
+                    <td>
+                        <a href="/patients/${patientId}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-user"></i>
+                        </a>
+                        <a href="/patients/report/${patientId}" class="btn btn-sm btn-info">
+                            <i class="fas fa-file-medical"></i>
+                        </a>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+            
+            console.log('High risk table updated with', patientsToShow.length, 'patients');
+        } catch (error) {
+            console.error('Error updating high risk table:', error);
+            // Handle error in UI
+            const tableBody = document.querySelector('#highRiskTable tbody');
+            if (tableBody) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading patient data</td></tr>`;
+            }
+        }
+    }
+    
+    function searchPatient() {
+        const patientId = document.getElementById('patient-search').value;
+        if (patientId) {
+            // Redirect to patient detail page if ID entered
+            window.location.href = `/patients/${patientId}`;
+        } else {
+            // Show error message
+            alert('Please enter a Patient ID');
+        }
+    }
+    
+    function downloadChart(chartId, title) {
+        const canvas = document.getElementById(chartId);
+        const image = canvas.toDataURL('image/png');
+        
+        const link = document.createElement('a');
+        link.download = `${title.replace(/\s+/g, '_').toLowerCase()}.png`;
+        link.href = image;
+        link.click();
+    }
+    
+    function downloadSVG(svgId, title) {
+        const svg = document.getElementById(svgId).querySelector('svg');
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+        
+        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+        const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+        
+        const link = document.createElement('a');
+        link.download = `${title.replace(/\s+/g, '_').toLowerCase()}.svg`;
+        link.href = url;
+        link.click();
+    }
+    
+    // Mock data generator functions (for demonstration)
+    function getMockDashboardData() {
+        return {
+            risk_distribution: [
+                { risk_level: 'Low', count: 54 },
+                { risk_level: 'Medium', count: 42 },
+                { risk_level: 'High', count: 28 }
+            ],
+            metrics: {
+                avg_risk_score: 65.3,
+                vital_stats: {
+                    avg_bmi: 28.4,
+                    avg_systolic: 138.2,
+                    avg_diastolic: 90.1,
+                    avg_heart_rate: 85.3
+                },
+                lab_stats: {
+                    avg_cholesterol: 220.6,
+                    avg_blood_sugar: 110.2
+                }
+            },
+            patient_data: getMockPatientData()
+        };
+    }
+    
+    function getMockPatientData() {
+        // Return mock high-risk patients data that aligns with the database schema
+        return [
+            {
+                patient_ID: 101,  // Match SQLite patient_ID format
+                patientId: 101,  // Match MongoDB patientId format
+                name: 'John Smith',
+                age: 58,
+                gender: 'Male',
+                SystolicBP: 165,
+                DiastolicBP: 95,
+                HeartRate: 88,
+                BMI: 32.1,
+                Cholesterol: 245,
+                BloodSugar: 130,
+                risk_level: 'High',
+                risk_score: 87,
+                key_factors: 'BP, Cholesterol, Family History',
+                riskAssessment: {
+                    heartAttackRiskText: 'High',
+                    stressLevel: 'High'
+                }
+            },
+            {
+                patient_ID: 102,
+                patientId: 102,
+                name: 'Mary Johnson',
+                age: 62,
+                gender: 'Female',
+                SystolicBP: 155,
+                DiastolicBP: 92,
+                HeartRate: 85,
+                BMI: 30.2,
+                Cholesterol: 235,
+                BloodSugar: 125,
+                risk_level: 'High',
+                risk_score: 82,
+                key_factors: 'Diabetes, Smoking, Age',
+                riskAssessment: {
+                    heartAttackRiskText: 'High',
+                    stressLevel: 'Medium'
+                }
+            },
+            {
+                patient_ID: 103,
+                patientId: 103,
+                name: 'Robert Davis',
+                age: 54,
+                gender: 'Male',
+                SystolicBP: 170,
+                DiastolicBP: 98,
+                HeartRate: 90,
+                BMI: 33.5,
+                Cholesterol: 260,
+                BloodSugar: 140,
+                risk_level: 'High',
+                risk_score: 78,
+                key_factors: 'BP, Obesity, Stress',
+                riskAssessment: {
+                    heartAttackRiskText: 'High',
+                    stressLevel: 'High'
+                }
+            },
+            {
+                patient_ID: 104,
+                patientId: 104,
+                name: 'Patricia Miller',
+                age: 65,
+                gender: 'Female',
+                SystolicBP: 160,
+                DiastolicBP: 94,
+                HeartRate: 86,
+                BMI: 31.8,
+                Cholesterol: 240,
+                BloodSugar: 135,
+                risk_level: 'High',
+                risk_score: 75,
+                key_factors: 'Age, Cholesterol, Low Activity',
+                riskAssessment: {
+                    heartAttackRiskText: 'High',
+                    stressLevel: 'Medium'
+                }
+            },
+            {
+                patient_ID: 105,
+                patientId: 105,
+                name: 'Michael Wilson',
+                age: 51,
+                gender: 'Male',
+                SystolicBP: 168,
+                DiastolicBP: 97,
+                HeartRate: 89,
+                BMI: 32.7,
+                Cholesterol: 250,
+                BloodSugar: 138,
+                risk_level: 'High',
+                risk_score: 72,
+                key_factors: 'Smoking, Family History, Stress',
+                riskAssessment: {
+                    heartAttackRiskText: 'High',
+                    stressLevel: 'High'
+                }
+            }
+        ];
+    }
+
+    // Initialize circular charts using Chart.js
+    function initializeCircularCharts() {
+        // Simple configuration options for all charts
+        const commonOptions = {
+            cutout: '75%',
+            plugins: {
+                tooltip: { enabled: false },
+                legend: { display: false }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        };
+        
+        // Total Patients Chart (Blue)
+        try {
+            const totalCtx = document.getElementById('totalPatientsChart');
+            if (totalCtx) {
+                new Chart(totalCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [100, 0], // 100% full
+                            backgroundColor: ['#4361ee', '#e9efff'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: commonOptions
+                });
+            }
+        } catch (e) {
+            console.error('Error initializing total patients chart:', e);
+        }
+        
+        // High Risk Patients Chart (Red)
+        try {
+            const highRiskCtx = document.getElementById('highRiskChart');
+            if (highRiskCtx) {
+                new Chart(highRiskCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [14, 86], // 14% of total
+                            backgroundColor: ['#ef4444', '#fff5f5'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: commonOptions
+                });
+            }
+        } catch (e) {
+            console.error('Error initializing high risk chart:', e);
+        }
+        
+        // Medium Risk Patients Chart (Yellow)
+        try {
+            const mediumRiskCtx = document.getElementById('mediumRiskChart');
+            if (mediumRiskCtx) {
+                new Chart(mediumRiskCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [23, 77], // 23% of total
+                            backgroundColor: ['#f59e0b', '#fffbeb'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: commonOptions
+                });
+            }
+        } catch (e) {
+            console.error('Error initializing medium risk chart:', e);
+        }
+        
+        // Low Risk Patients Chart (Green)
+        try {
+            const lowRiskCtx = document.getElementById('lowRiskChart');
+            if (lowRiskCtx) {
+                new Chart(lowRiskCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [63, 37], // 63% of total
+                            backgroundColor: ['#10b981', '#ecfdf5'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: commonOptions
+                });
+            }
+        } catch (e) {
+            console.error('Error initializing low risk chart:', e);
+        }
+    }
+</script>
+{% endblock %}

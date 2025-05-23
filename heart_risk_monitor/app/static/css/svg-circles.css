@@ -1,0 +1,85 @@
+/* SVG Circle Progress Styles */
+.svg-circle-container {
+  margin: 0 auto 20px;
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.svg-circle-bg {
+  fill: none;
+  stroke: #f2f2f2;
+  stroke-width: 10;
+}
+
+.svg-circle-progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.3s;
+}
+
+.svg-circle-blue {
+  stroke: #4e73df;
+}
+
+.svg-circle-green {
+  stroke: #4cd964;
+}
+
+.svg-circle-yellow {
+  stroke: #ff9500;
+}
+
+.svg-circle-red {
+  stroke: #e63757;
+}
+
+.svg-circle-text {
+  font-size: 24px;
+  font-weight: bold;
+  fill: #333;
+}
+
+.svg-circle-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+}
+
+/* Card styling */
+.stat-card {
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.card-footer {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.card-metric {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 5px;
+}

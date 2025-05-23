@@ -1,0 +1,96 @@
+/* Dashboard Cards */
+.patient-card {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Card Titles */
+.card-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+/* Card Values */
+.card-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Title Colors */
+.blue-title { color: #4361ee; }
+.red-title { color: #ef4444; }
+.yellow-title { color: #f59e0b; }
+.green-title { color: #10b981; }
+
+/* Circle Indicators */
+.circle-indicator {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 5px auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Circle Colors */
+.circle-blue {
+  border: 2px solid #4361ee;
+  background-color: #f8f9ff;
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.08);
+}
+
+.circle-red {
+  border: 2px solid #ef4444;
+  background-color: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.circle-yellow {
+  border: 2px solid #f59e0b;
+  background-color: #fffbeb;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+}
+
+.circle-green {
+  border: 2px solid #10b981;
+  background-color: #ecfdf5;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+/* Icons */
+.circle-icon {
+  font-size: 1.2rem;
+}
+
+.icon-blue { color: #4361ee; }
+.icon-red { color: #ef4444; }
+.icon-yellow { color: #f59e0b; }
+.icon-green { color: #10b981; }
+
+/* Stat Changes */
+.stat-change {
+  font-size: 0.7rem;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.change-up {
+  color: #10b981;
+}
+
+.change-down {
+  color: #ef4444;
+}

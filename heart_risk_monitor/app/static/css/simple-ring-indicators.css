@@ -1,0 +1,96 @@
+/* Simple Ring Indicators - matching exactly what's in the screenshot */
+.indicator-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 15px auto;
+  position: relative;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blue-ring {
+  border: 2px solid #6366f1;
+  background-color: #f8f9ff;
+}
+
+.red-ring {
+  border: 2px solid #f56565;
+  background-color: #fff8f8;
+}
+
+.yellow-ring {
+  border: 2px solid #ffc107;
+  background-color: #fffbf0;
+}
+
+.green-ring {
+  border: 2px solid #4ade80;
+  background-color: #f0fff4;
+}
+
+.ring-icon {
+  font-size: 24px;
+  color: #333;
+}
+
+.blue-icon {
+  color: #6366f1;
+}
+
+.red-icon {
+  color: #f56565;
+}
+
+.yellow-icon {
+  color: #ffc107;
+}
+
+.green-icon {
+  color: #4ade80;
+}
+
+/* Card styling */
+.risk-title {
+  color: #3b82f6;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.risk-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.change-indicator {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.text-blue {
+  color: #3b82f6;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.text-yellow {
+  color: #eab308;
+}
+
+.text-green {
+  color: #22c55e;
+}
+
+.text-up {
+  color: #22c55e;
+}
+
+.text-down {
+  color: #ef4444;
+}

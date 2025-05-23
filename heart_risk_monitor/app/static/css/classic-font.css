@@ -1,0 +1,68 @@
+/* Classic font styling for sidebar */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* Apply classic font to ALL sidebar elements EXCEPT icons with smaller font size */
+#sidebar,
+#sidebar a,
+#sidebar .nav-link,
+#sidebar h6,
+#sidebar span:not(.fas):not(.fa):not(.far):not(.fab),
+#sidebar div,
+#sidebar p,
+#sidebar label,
+#sidebar button,
+#sidebar input,
+#sidebar select,
+#sidebar .form-control,
+#sidebar .form-select,
+#sidebar .form-check-label,
+#sidebar .form-label,
+#sidebar .sidebar-heading,
+#sidebar .text-primary,
+.sidebar-filters,
+.sidebar-filters *:not(.fas):not(.fa):not(.far):not(.fab),
+.badge {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif !important;
+    color: white !important;
+    font-size: 0.85rem !important;
+}
+
+/* Special styling for heading elements */
+#sidebar h1, #sidebar h2, #sidebar h3, #sidebar h4, #sidebar h5, #sidebar h6,
+#sidebar .sidebar-heading {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+}
+
+/* Ensure all sidebar buttons have white text */
+#sidebar .btn,
+#sidebar button,
+#sidebar .btn-primary,
+#sidebar .btn-secondary,
+#sidebar .btn-success,
+#sidebar .btn-danger,
+#sidebar .btn-warning,
+#sidebar .btn-info,
+#sidebar .btn-light,
+#sidebar .btn-dark {
+    color: white !important;
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif !important;
+}
+
+/* Ensure all form controls have white text and classic font */
+#sidebar .form-control,
+#sidebar .form-select,
+#sidebar input,
+#sidebar select,
+#sidebar textarea {
+    color: white !important;
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif !important;
+}
+
+/* Make sure all badges and labels use our classic font */
+.badge,
+.form-check-label,
+.form-label {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif !important;
+}

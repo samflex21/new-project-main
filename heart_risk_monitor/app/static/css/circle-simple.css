@@ -1,0 +1,131 @@
+/* Simpler circular progress indicators */
+.circle-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+}
+
+/* Base circle */
+.circle-bg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #f2f2f2;
+  position: absolute;
+}
+
+/* Progress circle - different colors */
+.circle-progress-blue {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  clip: rect(0px, 120px, 120px, 60px);
+  background-image: linear-gradient(90deg, transparent 50%, #4e73df 50%);
+}
+
+.circle-progress-green {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  clip: rect(0px, 120px, 120px, 60px);
+  background-image: linear-gradient(90deg, transparent 50%, #4cd964 50%);
+}
+
+.circle-progress-yellow {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  clip: rect(0px, 120px, 120px, 60px);
+  background-image: linear-gradient(90deg, transparent 50%, #ff9500 50%);
+}
+
+.circle-progress-red {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  clip: rect(0px, 120px, 120px, 60px);
+  background-image: linear-gradient(90deg, transparent 50%, #e63757 50%);
+}
+
+/* Inner white circle */
+.circle-inner {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background-color: white;
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle-icon {
+  font-size: 24px;
+  color: #333;
+}
+
+/* For progress > 50% */
+.circle-progress-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  clip: rect(0px, 60px, 120px, 0px);
+  transform: rotate(0deg);
+}
+
+.circle-fill-blue {
+  background-image: linear-gradient(90deg, #4e73df 50%, transparent 50%);
+}
+
+.circle-fill-green {
+  background-image: linear-gradient(90deg, #4cd964 50%, transparent 50%);
+}
+
+.circle-fill-yellow {
+  background-image: linear-gradient(90deg, #ff9500 50%, transparent 50%);
+}
+
+.circle-fill-red {
+  background-image: linear-gradient(90deg, #e63757 50%, transparent 50%);
+}
+
+/* Card styling */
+.stat-card {
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.card-footer {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.card-metric {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 5px;
+}

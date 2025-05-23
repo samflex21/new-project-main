@@ -1,0 +1,624 @@
+{% extends "base.html" %}
+{% from "components/cards.html" import risk_card %}
+{% from "components/chart_panels.html" import line_chart_panel, radar_chart_panel %}
+
+{% block title %}Patient Report - Heart Risk Monitor{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        body {
+            font-size: 12pt;
+        }
+        
+        .container-fluid {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .no-print {
+            display: none !important;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .card {
+            border: 1px solid #ddd !important;
+            margin-bottom: 20px !important;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc !important;
+            padding: 10px 15px !important;
+        }
+        
+        .chart-container {
+            height: 300px !important;
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .report-footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10pt;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Patient Health Report</h1>
+    <div class="no-print">
+        <a href="{{ url_for('patient.patient_detail', patient_id=patient.patient_ID) }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Patient
+        </a>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print me-1"></i> Print Report
+        </button>
+    </div>
+</div>
+
+<!-- Report Content -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <!-- Report Header -->
+        <div class="report-header">
+            <h2>Heart Health Risk Assessment</h2>
+            <p class="text-muted">Confidential Medical Report</p>
+            <hr>
+        </div>
+        
+        <!-- Patient Information -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h4>Patient Information</h4>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Patient ID:</th>
+                        <td>{{ patient.patient_ID }}</td>
+                    </tr>
+                    <tr>
+                        <th>Age:</th>
+                        <td>{{ patient.age }} years</td>
+                    </tr>
+                    <tr>
+                        <th>Gender:</th>
+                        <td>{{ patient.gender }}</td>
+                    </tr>
+                    {% if patient.income is defined %}
+                    <tr>
+                        <th>Income Level:</th>
+                        <td>${{ patient.income|int }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Report Date:</th>
+                        <td>{{ risk_metrics.last_updated }}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="col-md-6">
+                <h4>Risk Assessment</h4>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Risk Score:</th>
+                        <td>
+                            <span class="badge bg-{{ 'success' if risk_metrics.risk_level == 'low' else ('warning' if risk_metrics.risk_level == 'medium' else 'danger') }} p-2">
+                                {{ risk_metrics.score|round|int }}% ({{ risk_metrics.risk_level|capitalize }})
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Heart Attack Risk:</th>
+                        <td>{{ risk_metrics.risk_level|capitalize }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prediction Confidence:</th>
+                        <td>{{ (risk_metrics.confidence * 100)|round|int }}%</td>
+                    </tr>
+                    <tr>
+                        <th>Assessment Method:</th>
+                        <td>Multifactorial Risk Analysis</td>
+                    </tr>
+                    <tr>
+                        <th>Model Version:</th>
+                        <td>{{ risk_metrics.model_version }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Vital Signs -->
+        <h4>Vital Signs</h4>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Blood Pressure:</th>
+                        <td>
+                            {{ patient.SystolicBP }}/{{ patient.DiastolicBP }} mmHg
+                            {% set bp_class = 'success' %}
+                            {% if patient.SystolicBP > 140 or patient.DiastolicBP > 90 %}
+                                {% set bp_class = 'danger' %}
+                            {% elif patient.SystolicBP > 120 or patient.DiastolicBP > 80 %}
+                                {% set bp_class = 'warning' %}
+                            {% endif %}
+                            <span class="badge bg-{{ bp_class }}">
+                                {{ 'High' if bp_class == 'danger' else ('Elevated' if bp_class == 'warning' else 'Normal') }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Heart Rate:</th>
+                        <td>
+                            {{ patient.HeartRate }} BPM
+                            {% set hr_class = 'success' %}
+                            {% if patient.HeartRate > 100 %}
+                                {% set hr_class = 'danger' %}
+                            {% elif patient.HeartRate > 90 or patient.HeartRate < 60 %}
+                                {% set hr_class = 'warning' %}
+                            {% endif %}
+                            <span class="badge bg-{{ hr_class }}">
+                                {{ 'High' if hr_class == 'danger' else ('Abnormal' if hr_class == 'warning' else 'Normal') }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>BMI:</th>
+                        <td>
+                            {{ patient.BMI|round(1) }} kg/m²
+                            {% set bmi_class = 'success' %}
+                            {% set bmi_text = 'Normal' %}
+                            {% if patient.BMI > 30 %}
+                                {% set bmi_class = 'danger' %}
+                                {% set bmi_text = 'Obese' %}
+                            {% elif patient.BMI > 25 %}
+                                {% set bmi_class = 'warning' %}
+                                {% set bmi_text = 'Overweight' %}
+                            {% elif patient.BMI < 18.5 %}
+                                {% set bmi_class = 'warning' %}
+                                {% set bmi_text = 'Underweight' %}
+                            {% endif %}
+                            <span class="badge bg-{{ bmi_class }}">{{ bmi_text }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Cholesterol:</th>
+                        <td>
+                            {{ patient.Cholesterol }} mg/dL
+                            {% set chol_class = 'success' %}
+                            {% set chol_text = 'Normal' %}
+                            {% if patient.Cholesterol > 240 %}
+                                {% set chol_class = 'danger' %}
+                                {% set chol_text = 'High' %}
+                            {% elif patient.Cholesterol > 200 %}
+                                {% set chol_class = 'warning' %}
+                                {% set chol_text = 'Borderline High' %}
+                            {% endif %}
+                            <span class="badge bg-{{ chol_class }}">{{ chol_text }}</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Lab Results -->
+        <h4>Lab Results</h4>
+        <table class="table table-bordered mb-4">
+            <thead>
+                <tr>
+                    <th>Test</th>
+                    <th>Result</th>
+                    <th>Reference Range</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Total Cholesterol</td>
+                    <td>{{ patient.Cholesterol }} mg/dL</td>
+                    <td>&lt;200 mg/dL</td>
+                    <td>
+                        {% if patient.Cholesterol > 240 %}
+                        <span class="badge bg-danger">High</span>
+                        {% elif patient.Cholesterol > 200 %}
+                        <span class="badge bg-warning">Borderline High</span>
+                        {% else %}
+                        <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Blood Glucose (Fasting)</td>
+                    <td>{{ patient.BloodSugar }} mg/dL</td>
+                    <td>70-99 mg/dL</td>
+                    <td>
+                        {% if patient.BloodSugar > 126 %}
+                        <span class="badge bg-danger">High</span>
+                        {% elif patient.BloodSugar > 100 %}
+                        <span class="badge bg-warning">Pre-Diabetic</span>
+                        {% else %}
+                        <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if patient.Triglycerides is defined %}
+                <tr>
+                    <td>Triglycerides</td>
+                    <td>{{ patient.Triglycerides }} mg/dL</td>
+                    <td>&lt;150 mg/dL</td>
+                    <td>
+                        {% if patient.Triglycerides > 200 %}
+                        <span class="badge bg-danger">High</span>
+                        {% elif patient.Triglycerides > 150 %}
+                        <span class="badge bg-warning">Borderline High</span>
+                        {% else %}
+                        <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        
+        <!-- Medical History -->
+        <h4>Medical History</h4>
+        <table class="table table-bordered mb-4">
+            <thead>
+                <tr>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Risk Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if history %}
+                <tr>
+                    <td>Diabetes</td>
+                    <td>{{ 'Yes' if history.Diabetes else 'No' }}</td>
+                    <td>
+                        {% if history.Diabetes %}
+                        <span class="badge bg-danger">High Impact</span>
+                        {% else %}
+                        <span class="badge bg-success">No Impact</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Family History of Heart Disease</td>
+                    <td>{{ 'Yes' if history.FamilyHistory else 'No' }}</td>
+                    <td>
+                        {% if history.FamilyHistory %}
+                        <span class="badge bg-warning">Medium Impact</span>
+                        {% else %}
+                        <span class="badge bg-success">No Impact</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Previous Heart Problems</td>
+                    <td>{{ 'Yes' if history.PreviousHeartProblems else 'No' }}</td>
+                    <td>
+                        {% if history.PreviousHeartProblems %}
+                        <span class="badge bg-danger">High Impact</span>
+                        {% else %}
+                        <span class="badge bg-success">No Impact</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Current Medication Use</td>
+                    <td>{{ 'Yes' if history.MedicationUse else 'No' }}</td>
+                    <td>
+                        {% if history.MedicationUse %}
+                        <span class="badge bg-info">Varies</span>
+                        {% else %}
+                        <span class="badge bg-success">No Impact</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">No medical history data available</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        
+        <!-- Risk Factors Analysis -->
+        <div class="page-break"></div>
+        
+        <h4>Risk Factors Analysis</h4>
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Risk Factor</th>
+                                <th>Patient Value</th>
+                                <th>Reference Range</th>
+                                <th>Risk Level</th>
+                                <th>Contribution to Overall Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, item in risk_metrics.details.items() %}
+                            <tr>
+                                <td>{{ key|capitalize }}</td>
+                                <td>
+                                    {% if key == 'bmi' %}
+                                        {{ item.value|round(1) }} kg/m²
+                                    {% elif key == 'blood_pressure' %}
+                                        {{ item.value }} mmHg
+                                    {% elif key == 'cholesterol' or key == 'blood_sugar' %}
+                                        {{ item.value }} mg/dL
+                                    {% elif key == 'age' %}
+                                        {{ item.value }} years
+                                    {% else %}
+                                        {{ item.value }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if key == 'bmi' %}
+                                        18.5-24.9 kg/m²
+                                    {% elif key == 'blood_pressure' %}
+                                        &lt;120/80 mmHg
+                                    {% elif key == 'cholesterol' %}
+                                        &lt;200 mg/dL
+                                    {% elif key == 'blood_sugar' %}
+                                        70-99 mg/dL
+                                    {% elif key == 'age' %}
+                                        N/A
+                                    {% else %}
+                                        Normal Range
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if item.risk == 'low' else ('warning' if item.risk == 'medium' else 'danger') }}">
+                                        {{ item.risk|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if item.risk == 'high' %}
+                                        Significant
+                                    {% elif item.risk == 'medium' %}
+                                        Moderate
+                                    {% else %}
+                                        Minimal
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Vital Signs Trend</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="vitalTrendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lab Results Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="labAnalysisChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recommendations -->
+        <h4>Recommendations</h4>
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="font-weight-bold">Clinical Recommendations</h6>
+                    <ul>
+                        {% if risk_metrics.risk_level == 'high' %}
+                        <li>Schedule a follow-up appointment within 2 weeks</li>
+                        <li>Consider cardiac stress test and additional diagnostic evaluations</li>
+                        <li>Review current medications and adjust as needed</li>
+                        <li>Monitoring of blood pressure and cholesterol levels every 3 months</li>
+                        {% elif risk_metrics.risk_level == 'medium' %}
+                        <li>Schedule a follow-up appointment within 1 month</li>
+                        <li>Regular monitoring of key health metrics</li>
+                        <li>Consider preventive medications if risk factors persist</li>
+                        <li>Monitoring of blood pressure and cholesterol levels every 6 months</li>
+                        {% else %}
+                        <li>Continue with regular annual check-ups</li>
+                        <li>Maintain current healthy lifestyle practices</li>
+                        <li>Monitoring of blood pressure and cholesterol levels annually</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="font-weight-bold">Lifestyle Recommendations</h6>
+                    <ul>
+                        {% if patient.BMI > 25 %}
+                        <li>Weight management: Aim to achieve a BMI below 25 through a balanced diet and regular exercise</li>
+                        {% endif %}
+                        
+                        {% if patient.SystolicBP > 120 or patient.DiastolicBP > 80 %}
+                        <li>Blood pressure management: Reduce sodium intake, maintain regular physical activity, and manage stress</li>
+                        {% endif %}
+                        
+                        {% if patient.Cholesterol > 200 %}
+                        <li>Cholesterol management: Limit saturated fats, increase fiber intake, and consider heart-healthy foods</li>
+                        {% endif %}
+                        
+                        <li>Physical activity: Aim for at least 150 minutes of moderate-intensity exercise per week</li>
+                        <li>Diet: Follow a heart-healthy diet rich in fruits, vegetables, whole grains, and lean proteins</li>
+                        <li>Stress management: Practice stress reduction techniques such as meditation, deep breathing, or yoga</li>
+                        
+                        {% if history and history.Smoking %}
+                        <li>Smoking cessation: Quit smoking and avoid exposure to secondhand smoke</li>
+                        {% endif %}
+                        
+                        {% if history and history.AlcoholConsumption %}
+                        <li>Alcohol moderation: Limit alcohol consumption to moderate levels</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="report-footer">
+            <p>This report is generated automatically and should be reviewed by a healthcare professional.</p>
+            <p>Heart Risk Monitor Dashboard &copy; 2025</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize vital trends chart
+        initializeVitalTrendsChart();
+        
+        // Initialize lab analysis chart
+        initializeLabAnalysisChart();
+    });
+    
+    function initializeVitalTrendsChart() {
+        const ctx = document.getElementById('vitalTrendsChart').getContext('2d');
+        
+        // Mock data for demonstration
+        const dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        
+        // Generate realistic data based on current values with small variations
+        const systolicBP = {{ patient.SystolicBP|default(120) }};
+        const diastolicBP = {{ patient.DiastolicBP|default(80) }};
+        
+        const systolicData = [];
+        const diastolicData = [];
+        
+        for (let i = 0; i < 6; i++) {
+            // Generate random variations within ±5%
+            const systolicVar = systolicBP * (1 + (Math.random() * 0.1 - 0.05));
+            const diastolicVar = diastolicBP * (1 + (Math.random() * 0.1 - 0.05));
+            
+            systolicData.push(Math.round(systolicVar));
+            diastolicData.push(Math.round(diastolicVar));
+        }
+        
+        // Show upward trend for high risk patients
+        if ('{{ risk_metrics.risk_level|default("") }}' === 'high') {
+            // Add slight upward trend for high risk patients
+            for (let i = 0; i < systolicData.length; i++) {
+                systolicData[i] = Math.round(systolicData[i] * (1 + i * 0.01));
+                diastolicData[i] = Math.round(diastolicData[i] * (1 + i * 0.01));
+            }
+        }
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Systolic BP',
+                        data: systolicData,
+                        borderColor: '#e74a3b',
+                        backgroundColor: 'rgba(231, 74, 59, 0.05)',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Diastolic BP',
+                        data: diastolicData,
+                        borderColor: '#f6c23e',
+                        backgroundColor: 'rgba(246, 194, 62, 0.05)',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+    
+    function initializeLabAnalysisChart() {
+        const ctx = document.getElementById('labAnalysisChart').getContext('2d');
+        
+        // Get current values
+        const cholesterol = {{ patient.Cholesterol|default(200) }};
+        const bloodSugar = {{ patient.BloodSugar|default(100) }};
+        
+        // Define reference ranges
+        const cholNormal = 200;
+        const bsNormal = 99;
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Cholesterol', 'Blood Sugar'],
+                datasets: [
+                    {
+                        label: 'Patient Values',
+                        data: [cholesterol, bloodSugar],
+                        backgroundColor: [
+                            cholesterol > cholNormal ? '#e74a3b' : '#1cc88a',
+                            bloodSugar > bsNormal ? '#e74a3b' : '#1cc88a'
+                        ]
+                    },
+                    {
+                        label: 'Reference Max',
+                        data: [cholNormal, bsNormal],
+                        backgroundColor: '#4e73df',
+                        type: 'line',
+                        pointStyle: 'line'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

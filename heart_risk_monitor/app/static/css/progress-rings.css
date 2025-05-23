@@ -1,0 +1,92 @@
+/* Progress Rings - matching the image exactly */
+.circle-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #f0f0f0;
+  stroke-width: 3;
+}
+
+.circle-progress {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.blue-progress {
+  stroke: #6366f1;
+}
+
+.red-progress {
+  stroke: #f56565;
+}
+
+.yellow-progress {
+  stroke: #ffc107;
+}
+
+.green-progress {
+  stroke: #4ade80;
+}
+
+.circle-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+}
+
+.blue-icon {
+  color: #6366f1;
+}
+
+.red-icon {
+  color: #f56565;
+}
+
+.yellow-icon {
+  color: #ffc107;
+}
+
+.green-icon {
+  color: #4ade80;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 1rem;
+}
+
+.stat-title {
+  color: #6c757d;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat-change {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.text-success {
+  color: #4ade80;
+}
+
+.text-danger {
+  color: #f56565;
+}

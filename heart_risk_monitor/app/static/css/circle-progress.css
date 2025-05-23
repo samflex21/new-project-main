@@ -1,0 +1,67 @@
+/* Simple Circle Progress Indicators */
+.circle-progress {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: 6px solid #f0f0f0;
+  box-sizing: border-box;
+}
+
+/* Circle overlay with gradient */
+.circle-progress::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 6px solid;
+  border-color: var(--color-mid);
+  clip-path: polygon(50% 50%, 100% 0, 100% 30%, 100% var(--progress, 100%));
+}
+
+.circle-progress .icon {
+  position: relative;
+  z-index: 2;
+  font-size: 24px;
+}
+
+/* Color schemes for different risk levels */
+.circle-primary {
+  --color-dark: #2e59d9;
+  --color-mid: #4e73df;
+  --color-light: #7294e8;
+  --progress: 95%;
+}
+
+.circle-danger {
+  --color-dark: #c52e1e;
+  --color-mid: #e74a3b;
+  --color-light: #ed796e;
+  --progress: 14%;
+}
+
+.circle-warning {
+  --color-dark: #e9a817;
+  --color-mid: #f6c23e;
+  --color-light: #f8d370;
+  --progress: 23%;
+}
+
+.circle-success {
+  --color-dark: #169969;
+  --color-mid: #1cc88a;
+  --color-light: #4ddcaa;
+  --progress: 63%;
+}
+
+/* Override progress values from HTML inline styles */
+[style*="--progress"] {
+  --progress: var(--progress) !important;
+}

@@ -1,0 +1,135 @@
+.metric-card {
+  background: #ffffff;
+  padding: 10px 5px;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  height: 100%;
+  position: relative;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.chart-container {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 5px;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.metric-info h5 {
+  margin: 5px 0 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.metric-info h3 {
+  margin: 0 0 5px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.metric-info p {
+  font-size: 0.65rem;
+  color: #666;
+  margin: 3px 0;
+}
+
+.metric-info p span {
+  font-weight: 600;
+}
+
+/* Color schemes */
+.blue-theme h3 {
+  color: #4361ee;
+}
+
+.red-theme h3 {
+  color: #ef4444;
+}
+
+.yellow-theme h3 {
+  color: #f59e0b;
+}
+
+.green-theme h3 {
+  color: #10b981;
+}
+
+.blue-theme h5 {
+  color: #4361ee;
+}
+
+.red-theme h5 {
+  color: #ef4444;
+}
+
+.yellow-theme h5 {
+  color: #f59e0b;
+}
+
+.green-theme h5 {
+  color: #10b981;
+}
+
+.chart-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+}
+
+.blue-theme .chart-icon {
+  color: #4361ee;
+}
+
+.red-theme .chart-icon {
+  color: #ef4444;
+}
+
+.yellow-theme .chart-icon {
+  color: #f59e0b;
+}
+
+.green-theme .chart-icon {
+  color: #10b981;
+}
+
+.chart-percentage {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #f5f7ff;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.blue-theme .chart-percentage {
+  color: #4361ee;
+  background: rgba(67, 97, 238, 0.1);
+}
+
+.red-theme .chart-percentage {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.yellow-theme .chart-percentage {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.green-theme .chart-percentage {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}

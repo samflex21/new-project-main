@@ -1,0 +1,37 @@
+/* Simple colored circles with icons */
+.circle-indicator {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-dark) 100%);
+  color: white;
+  font-size: 24px;
+}
+
+/* Blue circle for total patients */
+.circle-blue {
+  --color-dark: #2a52be;
+  --color-light: #6495ed;
+}
+
+/* Red circle for high risk */
+.circle-red {
+  --color-dark: #b22222;
+  --color-light: #ff6347;
+}
+
+/* Yellow circle for medium risk */
+.circle-yellow {
+  --color-dark: #daa520;
+  --color-light: #ffd700;
+}
+
+/* Green circle for low risk */
+.circle-green {
+  --color-dark: #008000;
+  --color-light: #32cd32;
+}

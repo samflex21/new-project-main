@@ -1,0 +1,143 @@
+.metric-card {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  padding: 1.5rem;
+  text-align: center;
+  height: 100%;
+  transition: transform 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+}
+
+.metric-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.75rem 0;
+}
+
+.percentage-change {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.percentage-change i {
+  margin-right: 0.25rem;
+}
+
+.increase {
+  color: #10b981;
+}
+
+.decrease {
+  color: #ef4444;
+}
+
+/* SVG Circle styling */
+.circle-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.svg-circle-container {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #f1f5f9;
+  stroke-width: 10;
+}
+
+.circle-progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s;
+}
+
+.circle-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.75rem;
+  color: #333;
+}
+
+/* Colors for different metrics */
+.total-patients .circle-progress {
+  stroke: #4361ee;
+}
+
+.total-patients .metric-title {
+  color: #4361ee;
+}
+
+.high-risk .circle-progress {
+  stroke: #ef4444;
+}
+
+.high-risk .metric-title {
+  color: #ef4444;
+}
+
+.medium-risk .circle-progress {
+  stroke: #f59e0b;
+}
+
+.medium-risk .metric-title {
+  color: #f59e0b;
+}
+
+.low-risk .circle-progress {
+  stroke: #10b981;
+}
+
+.low-risk .metric-title {
+  color: #10b981;
+}
+
+.circle-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 1.5rem;
+}
+
+.total-patients .circle-icon {
+  color: #4361ee;
+}
+
+.high-risk .circle-icon {
+  color: #ef4444;
+}
+
+.medium-risk .circle-icon {
+  color: #f59e0b;
+}
+
+.low-risk .circle-icon {
+  color: #10b981;
+}

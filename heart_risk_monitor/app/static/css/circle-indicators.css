@@ -1,0 +1,103 @@
+/* Circular Indicators for Stat Cards */
+.circle-indicator-primary,
+.circle-indicator-danger,
+.circle-indicator-warning,
+.circle-indicator-success {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+    background: transparent;
+    border: none;
+    --progress: 0%;
+}
+
+/* Base circles with progress */
+.circle-indicator-primary::before,
+.circle-indicator-danger::before,
+.circle-indicator-warning::before,
+.circle-indicator-success::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 5px solid #f0f0f0;
+    box-sizing: border-box;
+}
+
+/* Progress circles with gradient from dark to light */
+.circle-indicator-primary::after,
+.circle-indicator-danger::after,
+.circle-indicator-warning::after,
+.circle-indicator-success::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 5px solid;
+    border-color: transparent;
+    box-sizing: border-box;
+    /* Default progress is 0%, will be overridden by inline style */
+    --progress: 0%;
+}
+
+/* Primary (blue) progress with gradient */
+.circle-indicator-primary::after {
+    border-color: #4e73df;
+    background: conic-gradient(#2e59d9 0%, #4e73df 50%, #7294e8 100%);
+    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% calc(0% + var(--progress)), 100% calc(0% + var(--progress)), 50% 50%);
+}
+
+/* Danger (red) progress with gradient */
+.circle-indicator-danger::after {
+    border-color: #e74a3b;
+    background: conic-gradient(#c52e1e 0%, #e74a3b 50%, #ed796e 100%);
+    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% calc(0% + var(--progress)), 100% calc(0% + var(--progress)), 50% 50%);
+}
+
+/* Warning (yellow) progress with gradient */
+.circle-indicator-warning::after {
+    border-color: #f6c23e;
+    background: conic-gradient(#e9a817 0%, #f6c23e 50%, #f8d370 100%);
+    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% calc(0% + var(--progress)), 100% calc(0% + var(--progress)), 50% 50%);
+}
+
+/* Success (green) progress with gradient */
+.circle-indicator-success::after {
+    border-color: #1cc88a;
+    background: conic-gradient(#169969 0%, #1cc88a 50%, #4ddcaa 100%);
+    clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% calc(0% + var(--progress)), 100% calc(0% + var(--progress)), 50% 50%);
+}
+
+.circle-icon {
+    font-size: 24px;
+    color: #333;
+}
+
+.user-icon, .warning-icon, .info-icon, .check-icon {
+    font-size: 24px;
+}
+
+/* Reduce the font size in the sidebar */
+#sidebar .nav-link span {
+    font-size: 0.8rem !important;
+}
+
+#sidebar .nav-link {
+    padding: 0.5rem 1rem !important;
+}
+
+/* Make sure emoji icons are correctly sized */
+#sidebar .me-2 {
+    font-size: 14px !important;
+}
