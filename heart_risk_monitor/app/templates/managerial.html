@@ -3,9 +3,9 @@
 {% from "components/chart_panels.html" import bar_chart_panel, pie_chart_panel, line_chart_panel, heatmap_panel %}
 {% from "components/filters.html" import department_filter, time_period_filter, demographic_filter %}
 
-{% block title %}Population Health Insights - Heart Risk Monitor{% endblock %}
+{% block title %}Population Health Overview - Heart Risk Monitor{% endblock %}
 
-{% block page_title %}Population Health Insights{% endblock %}
+{% block page_title %}Population Health Overview Dashboard{% endblock %}
 
 {% block sidebar_filters %}
 <div class="filter-section">
@@ -57,39 +57,39 @@
     </div>
 </div>
         
-        <!-- Risk Distribution and Age-Risk Distribution Row -->
+        <!-- Health Risk by Income Level & Diet Score by Age Row -->
+        <div class="row">
+            <div class="col-xl-7 mb-4">
+                {{ bar_chart_panel('Health Risk by Income Level', 'incomeRiskChart', 
+                   'Reveals disparity between socioeconomic status and heart risk. Data from Patient and RiskAssessment tables.') }}
+            </div>
+            <div class="col-xl-5 mb-4">
+                {{ bar_chart_panel('Average Diet Score by Age Group', 'dietScoreChart', 
+                   'Evaluates how age influences nutrition. Data from Patient and DietaryHabits tables.') }}
+            </div>
+        </div>
+        
+        <!-- Exercise vs Sleep & Smoking Stress Correlation Row -->
+        <div class="row">
+            <div class="col-xl-6 mb-4">
+                {{ heatmap_panel('Distribution of Exercise vs Sleep', 'exerciseSleepChart',
+                   'Checks if lifestyle balance impacts risk. Data from Lifestyle and RiskAssessment tables.') }}
+            </div>
+            <div class="col-xl-6 mb-4">
+                {{ bar_chart_panel('Smoking & Stress Correlation by Gender', 'smokingStressChart',
+                   'Highlights gender-specific behavioral health trends. Data from Lifestyle, RiskAssessment, and Patient tables.') }}
+            </div>
+        </div>
+        
+        <!-- Population Demographics Row -->
         <div class="row">
             <div class="col-xl-5 mb-4">
                 {{ pie_chart_panel('Population Heart Risk Distribution', 'populationRiskChart', 
                    'Distribution of patients by risk level across the population.') }}
             </div>
             <div class="col-xl-7 mb-4">
-                {{ bar_chart_panel('Age-Risk Distribution', 'ageRiskChart', 
-                   'Distribution of risk levels across different age groups.') }}
-            </div>
-        </div>
-        
-        <!-- Trend Analysis and Geographic Distribution Row -->
-        <div class="row">
-            <div class="col-xl-8 mb-4">
-                {{ line_chart_panel('Risk Trend Analysis', 'riskTrendChart',
-                   'Monthly trend of risk levels over time.') }}
-            </div>
-            <div class="col-xl-4 mb-4">
-                {{ pie_chart_panel('Gender Distribution', 'genderChart',
-                   'Distribution of patients by gender.') }}
-            </div>
-        </div>
-        
-        <!-- Lifestyle Impact and Correlation Matrix Row -->
-        <div class="row">
-            <div class="col-xl-6 mb-4">
-                {{ bar_chart_panel('Lifestyle Impact Analysis', 'lifestyleChart',
-                   'Impact of lifestyle factors on risk levels.') }}
-            </div>
-            <div class="col-xl-6 mb-4">
-                {{ heatmap_panel('Risk Factor Correlation', 'correlationChart',
-                   'Correlation between different risk factors.') }}
+                {{ bar_chart_panel('Age Group Demographics', 'ageDemographicsChart', 
+                   'Population distribution by age groups.') }}
             </div>
         </div>
         
@@ -133,7 +133,86 @@
 {% block extra_js %}
 <script>
     // Sample data from the server
-    var sampleData = {% if sample_data %}{{ sample_data|tojson|safe }}{% else %}null{% endif %};
+    var sampleData = {% if sample_data %}{{ sample_data|tojson|safe }}{% else %}null{% endif %}; // Sample data from backend
+    
+    // Create mock data for the dashboard
+    function getMockManagerialData() {
+        return {
+            // Population health data for new charts
+            health_risk_income: [
+                {income_bracket: 'Low Income', HeartAttackRiskText: 'High Risk', count: 45},
+                {income_bracket: 'Low Income', HeartAttackRiskText: 'Medium Risk', count: 32},
+                {income_bracket: 'Low Income', HeartAttackRiskText: 'Low Risk', count: 23},
+                {income_bracket: 'Middle Income', HeartAttackRiskText: 'High Risk', count: 28},
+                {income_bracket: 'Middle Income', HeartAttackRiskText: 'Medium Risk', count: 42},
+                {income_bracket: 'Middle Income', HeartAttackRiskText: 'Low Risk', count: 50},
+                {income_bracket: 'Upper Middle Income', HeartAttackRiskText: 'High Risk', count: 15},
+                {income_bracket: 'Upper Middle Income', HeartAttackRiskText: 'Medium Risk', count: 38},
+                {income_bracket: 'Upper Middle Income', HeartAttackRiskText: 'Low Risk', count: 57},
+                {income_bracket: 'High Income', HeartAttackRiskText: 'High Risk', count: 10},
+                {income_bracket: 'High Income', HeartAttackRiskText: 'Medium Risk', count: 25},
+                {income_bracket: 'High Income', HeartAttackRiskText: 'Low Risk', count: 65}
+            ],
+            diet_score_age: [
+                {age_group: '18-29', average_diet_score: 6.2},
+                {age_group: '30-39', average_diet_score: 6.8},
+                {age_group: '40-49', average_diet_score: 7.1},
+                {age_group: '50-59', average_diet_score: 7.5},
+                {age_group: '60+', average_diet_score: 7.9}
+            ],
+            exercise_sleep: [
+                {ExerciseHoursPerWeek: 2, SleepHoursPerDay: 5, HeartAttackRiskText: 'High Risk', patient_count: 35},
+                {ExerciseHoursPerWeek: 3, SleepHoursPerDay: 6, HeartAttackRiskText: 'Medium Risk', patient_count: 48},
+                {ExerciseHoursPerWeek: 5, SleepHoursPerDay: 7, HeartAttackRiskText: 'Low Risk', patient_count: 65},
+                {ExerciseHoursPerWeek: 7, SleepHoursPerDay: 8, HeartAttackRiskText: 'Low Risk', patient_count: 72},
+                {ExerciseHoursPerWeek: 1, SleepHoursPerDay: 5, HeartAttackRiskText: 'High Risk', patient_count: 52},
+                {ExerciseHoursPerWeek: 4, SleepHoursPerDay: 8, HeartAttackRiskText: 'Medium Risk', patient_count: 38},
+                {ExerciseHoursPerWeek: 6, SleepHoursPerDay: 6, HeartAttackRiskText: 'Medium Risk', patient_count: 29},
+                {ExerciseHoursPerWeek: 8, SleepHoursPerDay: 7, HeartAttackRiskText: 'Low Risk', patient_count: 55}
+            ],
+            smoking_stress: [
+                {Gender: 'Male', Smoking: 1, StressLevel_Category: 'High', count: 42},
+                {Gender: 'Male', Smoking: 1, StressLevel_Category: 'Medium', count: 35},
+                {Gender: 'Male', Smoking: 1, StressLevel_Category: 'Low', count: 18},
+                {Gender: 'Male', Smoking: 0, StressLevel_Category: 'High', count: 30},
+                {Gender: 'Male', Smoking: 0, StressLevel_Category: 'Medium', count: 45},
+                {Gender: 'Male', Smoking: 0, StressLevel_Category: 'Low', count: 52},
+                {Gender: 'Female', Smoking: 1, StressLevel_Category: 'High', count: 38},
+                {Gender: 'Female', Smoking: 1, StressLevel_Category: 'Medium', count: 32},
+                {Gender: 'Female', Smoking: 1, StressLevel_Category: 'Low', count: 15},
+                {Gender: 'Female', Smoking: 0, StressLevel_Category: 'High', count: 25},
+                {Gender: 'Female', Smoking: 0, StressLevel_Category: 'Medium', count: 48},
+                {Gender: 'Female', Smoking: 0, StressLevel_Category: 'Low', count: 58}
+            ],
+            // Original data for existing charts
+            population_data: {
+                gender_risk: [
+                    {gender: 'Male', risk_level: 'Low Risk', count: 150},
+                    {gender: 'Male', risk_level: 'Medium Risk', count: 120},
+                    {gender: 'Male', risk_level: 'High Risk', count: 80},
+                    {gender: 'Female', risk_level: 'Low Risk', count: 180},
+                    {gender: 'Female', risk_level: 'Medium Risk', count: 100},
+                    {gender: 'Female', risk_level: 'High Risk', count: 70}
+                ],
+                age_distribution: [
+                    {age_group: '18-29', count: 120},
+                    {age_group: '30-39', count: 180},
+                    {age_group: '40-49', count: 210},
+                    {age_group: '50-59', count: 160},
+                    {age_group: '60+', count: 130}
+                ],
+                lifestyle_impact: [
+                    {factor: 'Exercise', high_impact: 85, medium_impact: 65, low_impact: 50},
+                    {factor: 'Diet', high_impact: 75, medium_impact: 70, low_impact: 55},
+                    {factor: 'Smoking', high_impact: 90, medium_impact: 60, low_impact: 45},
+                    {factor: 'Alcohol', high_impact: 65, medium_impact: 55, low_impact: 80},
+                    {factor: 'Sleep', high_impact: 70, medium_impact: 65, low_impact: 65}
+                ]
+            }
+        };
+    }
+    
+    // Wait for DOM to be fully loaded before initializing charts
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize charts
         initializeManagerialDashboard();
@@ -149,7 +228,323 @@
     });
     
     function initializeManagerialDashboard() {
-        // Initialize empty charts (will be populated with data later)
+        // Initialize all charts for Population Health Dashboard
+        
+        // 1. Health Risk by Income Level Chart
+        const incomeRiskCtx = document.getElementById('incomeRiskChart').getContext('2d');
+        window.incomeRiskChart = new Chart(incomeRiskCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Low Income', 'Middle Income', 'Upper Middle Income', 'High Income'],
+                datasets: [
+                    {
+                        label: 'High Risk',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#f72585',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Medium Risk',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#7209b7',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Low Risk',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#4cc9f0',
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Health Risk Distribution by Income Level',
+                        color: '#e9ecef',
+                        font: {
+                            size: 14
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#e9ecef'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 32, 34, 0.8)',
+                        titleColor: '#e9ecef',
+                        bodyColor: '#e9ecef'
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 2. Average Diet Score by Age Group Chart
+        const dietScoreCtx = document.getElementById('dietScoreChart').getContext('2d');
+        window.dietScoreChart = new Chart(dietScoreCtx, {
+            type: 'bar',
+            data: {
+                labels: ['18-29', '30-44', '45-59', '60+'],
+                datasets: [{
+                    label: 'Average Diet Score',
+                    data: [0, 0, 0, 0],
+                    backgroundColor: [
+                        '#4cc9f0',
+                        '#4895ef',
+                        '#4361ee',
+                        '#3f37c9'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Diet Quality Score by Age Group (0-10 scale)',
+                        color: '#e9ecef',
+                        font: {
+                            size: 14
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#e9ecef'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 32, 34, 0.8)',
+                        titleColor: '#e9ecef',
+                        bodyColor: '#e9ecef'
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 3. Exercise vs Sleep Distribution Chart (Heatmap/Bubble)
+        const exerciseSleepCtx = document.getElementById('exerciseSleepChart').getContext('2d');
+        window.exerciseSleepChart = new Chart(exerciseSleepCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Low Risk',
+                        data: [],
+                        backgroundColor: 'rgba(76, 201, 240, 0.7)',
+                        borderColor: 'rgba(76, 201, 240, 1)',
+                        borderWidth: 1,
+                        pointRadius: 8,
+                        pointHoverRadius: 10
+                    },
+                    {
+                        label: 'Medium Risk',
+                        data: [],
+                        backgroundColor: 'rgba(114, 9, 183, 0.7)',
+                        borderColor: 'rgba(114, 9, 183, 1)',
+                        borderWidth: 1,
+                        pointRadius: 8,
+                        pointHoverRadius: 10
+                    },
+                    {
+                        label: 'High Risk',
+                        data: [],
+                        backgroundColor: 'rgba(247, 37, 133, 0.7)',
+                        borderColor: 'rgba(247, 37, 133, 1)',
+                        borderWidth: 1,
+                        pointRadius: 8,
+                        pointHoverRadius: 10
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Exercise vs Sleep Distribution by Risk Level',
+                        color: '#e9ecef',
+                        font: {
+                            size: 14
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#e9ecef'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 32, 34, 0.8)',
+                        titleColor: '#e9ecef',
+                        bodyColor: '#e9ecef',
+                        callbacks: {
+                            label: function(context) {
+                                return `Exercise: ${context.raw.x} hrs/week, Sleep: ${context.raw.y} hrs/day`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Exercise Hours per Week',
+                            color: '#e9ecef'
+                        },
+                        min: 0,
+                        max: 10,
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Sleep Hours per Day',
+                            color: '#e9ecef'
+                        },
+                        min: 3,
+                        max: 10,
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 4. Smoking & Stress Correlation by Gender Chart
+        const smokingStressCtx = document.getElementById('smokingStressChart').getContext('2d');
+        window.smokingStressChart = new Chart(smokingStressCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Male - Smoker', 'Male - Non-Smoker', 'Female - Smoker', 'Female - Non-Smoker'],
+                datasets: [
+                    {
+                        label: 'High Stress',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#f72585',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Medium Stress',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#7209b7',
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Low Stress',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#4cc9f0',
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Stress Levels by Gender and Smoking Status',
+                        color: '#e9ecef',
+                        font: {
+                            size: 14
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#e9ecef'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 32, 34, 0.8)',
+                        titleColor: '#e9ecef',
+                        bodyColor: '#e9ecef'
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e9ecef'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
         // Population Risk Distribution Pie Chart
         const riskCtx = document.getElementById('populationRiskChart').getContext('2d');
         window.populationRiskChart = new Chart(riskCtx, {
@@ -415,125 +810,191 @@
     }
     
     function fetchDashboardData() {
-        // Get filter values
-        const department = document.getElementById('department-select').value;
-        const timePeriod = document.getElementById('time-period-select').value;
-        const demographic = document.getElementById('demographic-select').value;
-        
-        // Check if we have sample data passed from the server
-        if (sampleData) {
-            // Use the sample data provided by the route
-            updateDashboardData(sampleData);
-            return;
-        }
-        
         // Build query parameters
         const params = new URLSearchParams();
-        if (department) params.append('department', department);
-        if (timePeriod) params.append('time_period', timePeriod);
-        if (demographic) params.append('demographic', demographic);
         
-        // For demonstration purposes, use mock data
+        // Get filter values
+        const departmentFilter = document.getElementById('department-filter').value;
+        const timePeriodFilter = document.getElementById('time-period-filter').value;
+        const demographicFilter = document.getElementById('demographic-filter').value;
+        
+        // Add filter parameters if they have values
+        if (departmentFilter) params.append('department', departmentFilter);
+        if (timePeriodFilter) params.append('time_period', timePeriodFilter);
+        if (demographicFilter) params.append('demographic', demographicFilter);
+        
+        // For demonstration purposes, use mock data first
+        console.log('Fetching dashboard data with filters:', params.toString());
         const mockData = getMockManagerialData();
         updateDashboardData(mockData);
         
-        /* Uncomment for real API call
+        // Real API call is commented out for now, but will be used in production
+        // Uncomment this section and comment out the mock data section when ready
+        /*
         fetch(`/managerial/data?${params.toString()}`)
             .then(response => response.json())
             .then(data => {
+                console.log('Received data from server:', data);
                 updateDashboardData(data);
             })
             .catch(error => {
                 console.error('Error fetching dashboard data:', error);
                 // Show error message to user
                 alert('Error fetching dashboard data. Please try again.');
+                // Fall back to mock data
+                updateDashboardData(getMockManagerialData());
             });
         */
     }
     
     function updateDashboardData(data) {
-        // Update population risk distribution chart
-        const riskCounts = {'low': 0, 'medium': 0, 'high': 0};
+        // 1. Update Health Risk by Income Level Chart
+        if (data.health_risk_income) {
+            // Process the income risk data
+            const incomeGroups = ['Low Income', 'Middle Income', 'Upper Middle Income', 'High Income'];
+            const highRiskData = Array(incomeGroups.length).fill(0);
+            const mediumRiskData = Array(incomeGroups.length).fill(0);
+            const lowRiskData = Array(incomeGroups.length).fill(0);
+            
+            for (const item of data.health_risk_income) {
+                const index = incomeGroups.indexOf(item.income_bracket);
+                if (index !== -1) {
+                    if (item.HeartAttackRiskText === 'High Risk') {
+                        highRiskData[index] = item.count;
+                    } else if (item.HeartAttackRiskText === 'Medium Risk') {
+                        mediumRiskData[index] = item.count;
+                    } else if (item.HeartAttackRiskText === 'Low Risk') {
+                        lowRiskData[index] = item.count;
+                    }
+                }
+            }
+            
+            window.incomeRiskChart.data.datasets[0].data = highRiskData;
+            window.incomeRiskChart.data.datasets[1].data = mediumRiskData;
+            window.incomeRiskChart.data.datasets[2].data = lowRiskData;
+            window.incomeRiskChart.update();
+            console.log('Updated Health Risk by Income Level chart');
+        }
+        
+        // 2. Update Diet Score by Age Group Chart
+        if (data.diet_score_age) {
+            const ageGroups = [];
+            const dietScores = [];
+            
+            for (const item of data.diet_score_age) {
+                ageGroups.push(item.age_group);
+                dietScores.push(parseFloat(item.average_diet_score).toFixed(1));
+            }
+            
+            window.dietScoreChart.data.labels = ageGroups;
+            window.dietScoreChart.data.datasets[0].data = dietScores;
+            window.dietScoreChart.update();
+            console.log('Updated Diet Score by Age Group chart');
+        }
+        
+        // 3. Update Exercise vs Sleep Distribution Chart
+        if (data.exercise_sleep) {
+            // Process the data for scatter plot
+            const lowRiskData = [];
+            const mediumRiskData = [];
+            const highRiskData = [];
+            
+            for (const item of data.exercise_sleep) {
+                const point = {
+                    x: item.ExerciseHoursPerWeek,
+                    y: item.SleepHoursPerDay,
+                    r: Math.sqrt(item.patient_count) * 3 // Size based on count
+                };
+                
+                if (item.HeartAttackRiskText === 'Low Risk') {
+                    lowRiskData.push(point);
+                } else if (item.HeartAttackRiskText === 'Medium Risk') {
+                    mediumRiskData.push(point);
+                } else if (item.HeartAttackRiskText === 'High Risk') {
+                    highRiskData.push(point);
+                }
+            }
+            
+            window.exerciseSleepChart.data.datasets[0].data = lowRiskData;
+            window.exerciseSleepChart.data.datasets[1].data = mediumRiskData;
+            window.exerciseSleepChart.data.datasets[2].data = highRiskData;
+            window.exerciseSleepChart.update();
+            console.log('Updated Exercise vs Sleep Distribution chart');
+        }
+        
+        // 4. Update Smoking & Stress Correlation by Gender Chart
+        if (data.smoking_stress) {
+            // Process the gender, smoking, and stress data
+            const categories = ['Male - Smoker', 'Male - Non-Smoker', 'Female - Smoker', 'Female - Non-Smoker'];
+            const highStressData = Array(categories.length).fill(0);
+            const mediumStressData = Array(categories.length).fill(0);
+            const lowStressData = Array(categories.length).fill(0);
+            
+            for (const item of data.smoking_stress) {
+                let categoryIndex = -1;
+                
+                if (item.Gender === 'Male' && item.Smoking == 1) {
+                    categoryIndex = 0; // Male Smoker
+                } else if (item.Gender === 'Male' && item.Smoking == 0) {
+                    categoryIndex = 1; // Male Non-Smoker
+                } else if (item.Gender === 'Female' && item.Smoking == 1) {
+                    categoryIndex = 2; // Female Smoker
+                } else if (item.Gender === 'Female' && item.Smoking == 0) {
+                    categoryIndex = 3; // Female Non-Smoker
+                }
+                
+                if (categoryIndex !== -1) {
+                    if (item.StressLevel_Category === 'High') {
+                        highStressData[categoryIndex] += item.count;
+                    } else if (item.StressLevel_Category === 'Medium') {
+                        mediumStressData[categoryIndex] += item.count;
+                    } else if (item.StressLevel_Category === 'Low') {
+                        lowStressData[categoryIndex] += item.count;
+                    }
+                }
+            }
+            
+            window.smokingStressChart.data.datasets[0].data = highStressData;
+            window.smokingStressChart.data.datasets[1].data = mediumStressData;
+            window.smokingStressChart.data.datasets[2].data = lowStressData;
+            window.smokingStressChart.update();
+            console.log('Updated Smoking & Stress by Gender chart');
+        }
+        
+        // 5. Update Population Risk Distribution Chart
+        const riskCounts = {'Low Risk': 0, 'Medium Risk': 0, 'High Risk': 0};
         
         if (data.population_data && data.population_data.gender_risk) {
             for (const item of data.population_data.gender_risk) {
-                const riskLevel = item.risk_level.toLowerCase();
-                if (riskCounts.hasOwnProperty(riskLevel)) {
-                    riskCounts[riskLevel] += item.count;
+                if (riskCounts.hasOwnProperty(item.risk_level)) {
+                    riskCounts[item.risk_level] += item.count;
                 }
             }
         }
         
         window.populationRiskChart.data.datasets[0].data = [
-            riskCounts.low,
-            riskCounts.medium,
-            riskCounts.high
+            riskCounts['Low Risk'],
+            riskCounts['Medium Risk'],
+            riskCounts['High Risk']
         ];
         window.populationRiskChart.update();
+        console.log('Updated Population Risk Distribution chart');
         
-        // Update age-risk distribution chart
+        // 6. Update Age Demographics Chart
         if (data.population_data && data.population_data.age_distribution) {
             const ageGroups = [];
-            const highRiskData = [];
-            const mediumRiskData = [];
-            const lowRiskData = [];
+            const ageCounts = [];
             
-            // Process age distribution data
-            // This is simplified - in a real application, you would have age-risk combined data
             for (const item of data.population_data.age_distribution) {
                 ageGroups.push(item.age_group);
-                
-                // Mock distribution by risk level for demo
-                const total = item.count;
-                highRiskData.push(Math.round(total * 0.2));  // 20% high risk
-                mediumRiskData.push(Math.round(total * 0.3));  // 30% medium risk
-                lowRiskData.push(Math.round(total * 0.5));  // 50% low risk
+                ageCounts.push(item.count);
             }
             
-            window.ageRiskChart.data.labels = ageGroups;
-            window.ageRiskChart.data.datasets[0].data = highRiskData;
-            window.ageRiskChart.data.datasets[1].data = mediumRiskData;
-            window.ageRiskChart.data.datasets[2].data = lowRiskData;
-            window.ageRiskChart.update();
+            window.ageDemographicsChart.data.labels = ageGroups;
+            window.ageDemographicsChart.data.datasets[0].data = ageCounts;
+            window.ageDemographicsChart.update();
+            console.log('Updated Age Demographics chart');
         }
-        
-        // Update risk trend chart
-        if (data.metrics && data.metrics.trend_analysis) {
-            const months = [];
-            const highRiskTrend = [];
-            const mediumRiskTrend = [];
-            const lowRiskTrend = [];
-            
-            for (const item of data.metrics.trend_analysis) {
-                months.push(item.month);
-                highRiskTrend.push(item.high_risk);
-                mediumRiskTrend.push(item.medium_risk);
-                lowRiskTrend.push(item.low_risk);
-            }
-            
-            window.riskTrendChart.data.labels = months;
-            window.riskTrendChart.data.datasets[0].data = highRiskTrend;
-            window.riskTrendChart.data.datasets[1].data = mediumRiskTrend;
-            window.riskTrendChart.data.datasets[2].data = lowRiskTrend;
-            window.riskTrendChart.update();
-        }
-        
-        // Update gender distribution chart
-        const genderCounts = {'Male': 0, 'Female': 0};
-        
-        if (data.population_data && data.population_data.gender_risk) {
-            for (const item of data.population_data.gender_risk) {
-                if (genderCounts.hasOwnProperty(item.gender)) {
-                    genderCounts[item.gender] += item.count;
-                }
-            }
-        }
-        
-        window.genderChart.data.datasets[0].data = [
-            genderCounts['Male'],
-            genderCounts['Female']
-        ];
-        window.genderChart.update();
         
         // Update lifestyle impact chart
         if (data.population_data && data.population_data.lifestyle_impact) {

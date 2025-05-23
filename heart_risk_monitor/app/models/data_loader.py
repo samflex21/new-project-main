@@ -166,8 +166,7 @@ def get_population_data(department=None, time_period=None, population_segment=No
     Returns:
         Dictionary with population data
     """
-    # Here we would normally query aggregate tables
-    # For now, return mock aggregated data from our patient table
+    # Query data using the tables defined in Script-1.sql
     
     # Try loading from database first
     try:

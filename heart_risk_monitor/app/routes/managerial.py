@@ -2,6 +2,14 @@ from flask import Blueprint, render_template, request, jsonify
 import pandas as pd
 import numpy as np
 
+# Import the new population health data functions
+from app.models.population_health import (
+    get_health_risk_by_income,
+    get_diet_score_by_age,
+    get_exercise_sleep_distribution,
+    get_smoking_stress_by_gender
+)
+
 # Import data loader functions if available, otherwise use mock data
 try:
     from app.models.data_loader import get_population_data, get_resource_utilization
@@ -86,18 +94,28 @@ managerial_bp = Blueprint('managerial', __name__, url_prefix='/managerial')
 
 @managerial_bp.route('/')
 def dashboard():
-    """Render the managerial dashboard for hospital administrators"""
+    """Render the managerial dashboard for population health officials"""
     # Get sample data for initial render
     population_data = get_population_data()
     resource_data = get_resource_utilization()
     population_metrics = calculate_population_metrics(population_data)
     
+    # Get data for the new charts
+    health_risk_income_data = get_health_risk_by_income()
+    diet_score_age_data = get_diet_score_by_age()
+    exercise_sleep_data = get_exercise_sleep_distribution()
+    smoking_stress_data = get_smoking_stress_by_gender()
+    
     return render_template('managerial.html', 
-                           title='Population Health Insights',
+                           title='Population Health Overview',
                            sample_data={
                                'population': population_data,
                                'resources': resource_data,
-                               'metrics': population_metrics
+                               'metrics': population_metrics,
+                               'health_risk_income': health_risk_income_data,
+                               'diet_score_age': diet_score_age_data,
+                               'exercise_sleep': exercise_sleep_data,
+                               'smoking_stress': smoking_stress_data
                            })
 
 @managerial_bp.route('/data')
