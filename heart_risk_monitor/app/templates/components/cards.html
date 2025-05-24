@@ -1,34 +1,13 @@
 {% macro stat_card(title, value, icon, color, percent_change=None) %}
-<div class="card h-100 shadow-sm">
-    <div class="card-body text-center">
-        <div class="circle-indicator-{{ color }} mb-3">
-            <div class="circle-icon">
-                {% if color == 'primary' %}
-                <span class="user-icon">👤</span>
-                {% elif color == 'danger' %}
-                <span class="warning-icon">⚠️</span>
-                {% elif color == 'warning' %}
-                <span class="info-icon">ℹ️</span>
-                {% elif color == 'success' %}
-                <span class="check-icon">✓</span>
-                {% else %}
-                <i class="{{ icon }}"></i>
-                {% endif %}
-            </div>
+<div class="card colored-stat-card card-{{ color }}">
+    <div class="card-body">
+        <div class="mb-3">
+            <i class="{{ icon }}" style="font-size: 1.5rem;"></i>
         </div>
-        <h2 class="display-4 fw-bold">{{ value }}</h2>
-        <p class="text-muted text-uppercase fs-6">{{ title }}</p>
-        {% if percent_change is not none %}
-        <p class="small">
-            {% if percent_change > 0 %}
-            <span class="text-success">{{ percent_change }}% since last month</span>
-            {% elif percent_change < 0 %}
-            <span class="text-danger">{{ percent_change|abs }}% since last month</span>
-            {% else %}
-            <span class="text-muted">0% since last month</span>
-            {% endif %}
-        </p>
-        {% endif %}
+        <div class="stat-value">{{ value }}</div>
+        <div class="stat-title">{{ title }}</div>
+        <div class="stat-divider"></div>
+        <a href="#" class="stat-link">See details</a>
     </div>
 </div>
 {% endmacro %}

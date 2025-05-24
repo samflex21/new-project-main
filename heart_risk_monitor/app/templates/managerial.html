@@ -43,17 +43,64 @@
 {% block content %}
 <!-- Stats Row -->
 <div class="row mb-4">
+    <!-- Purple Card for Total Patients -->
     <div class="col-xl-3 col-md-6 mb-4">
-        {{ stat_card("Total Patients", "124", "fas fa-users", "primary") }}
+        <div class="card shadow-sm" style="background-color: #7B4DFF !important; color: white !important; border: none !important;">
+            <div class="card-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-users" style="font-size: 1.5rem;"></i>
+                </div>
+                <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">124</div>
+                <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">TOTAL PATIENTS</div>
+                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+            </div>
+        </div>
     </div>
+    
+    <!-- Blue Card for Average Age -->
     <div class="col-xl-3 col-md-6 mb-4">
-        {{ stat_card("Average Age", "48.7", "fas fa-calendar", "info") }}
+        <div class="card shadow-sm" style="background-color: #03A9F4 !important; color: white !important; border: none !important;">
+            <div class="card-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-calendar" style="font-size: 1.5rem;"></i>
+                </div>
+                <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">48.7</div>
+                <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">AVERAGE AGE</div>
+                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+            </div>
+        </div>
     </div>
+    
+    <!-- Orange Card for High Risk % -->
     <div class="col-xl-3 col-md-6 mb-4">
-        {{ stat_card("High Risk %", "22.6%", "fas fa-exclamation-triangle", "danger") }}
+        <div class="card shadow-sm" style="background-color: #FF5252 !important; color: white !important; border: none !important;">
+            <div class="card-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+                </div>
+                <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">22.6%</div>
+                <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">HIGH RISK %</div>
+                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+            </div>
+        </div>
     </div>
+    
+    <!-- Dark Blue Card for Assessments -->
     <div class="col-xl-3 col-md-6 mb-4">
-        {{ progress_card("Risk Assessment", "124", "150", "primary") }}
+        <div class="card shadow-sm" style="background-color: #303F9F !important; color: white !important; border: none !important;">
+            <div class="card-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-clipboard-check" style="font-size: 1.5rem;"></i>
+                </div>
+                <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">50/62</div>
+                <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">ASSESSMENTS</div>
+                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+            </div>
+        </div>
     </div>
 </div>
         
