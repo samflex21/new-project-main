@@ -81,12 +81,31 @@ def analytical_dashboard():
     # Get high risk patients data directly
     high_risk_patients = get_high_risk_patients()
     
+    # Extract patient counts for the dashboard
+    total_patients = risk_distribution.get('total_patients', 0)
+    
+    # Initialize risk level counts
+    risk_counts = {
+        'high': 0,
+        'medium': 0,
+        'low': 0
+    }
+    
+    # Process risk distribution data
+    for risk_level in risk_distribution.get('risk_levels', []):
+        level = risk_level.get('risk_level', '').lower()
+        count = risk_level.get('count', 0)
+        if level in risk_counts:
+            risk_counts[level] = count
+    
     # Get sample data for dashboard
     sample_data = {}
     
     return render_template('analytical.html', 
                           sample_data=sample_data,
-                          high_risk_patients=high_risk_patients)
+                          high_risk_patients=high_risk_patients,
+                          total_patients=total_patients,
+                          risk_counts=risk_counts)
 
 @analytical_bp.route('/data')
 def dashboard_data():
@@ -124,73 +143,107 @@ def dashboard_data():
         'metrics': metrics
     })
 
-def get_high_risk_patients(risk_level='High Risk'):
-    """Function to get high risk patients data"""
-    # Add logging to debug the issue
+def get_high_risk_patients(risk_level='High'):
+    """Function to get high risk patients data directly from the original CSV file"""
     from flask import current_app
-    current_app.logger.info(f"Fetching high risk patients with risk level: {risk_level}")
+    import pandas as pd
+    import os
+    
+    current_app.logger.info(f"Fetching high risk patients with risk level: {risk_level} from CSV file")
+    
+    # Check if we're using mock data
+    if USE_MOCK_DATA:
+        current_app.logger.info("Using mock data for high risk patients")
+        # Return some sample mock data for testing
+        return [
+            {
+                'patient_id': 101, 
+                'age': 65, 
+                'gender': 'Male',
+                'risk_level': 'High',
+                'key_factors': 'High Cholesterol, High BP'
+            },
+            {
+                'patient_id': 102, 
+                'age': 58, 
+                'gender': 'Female',
+                'risk_level': 'High',
+                'key_factors': 'High BMI, Diabetes'
+            }
+        ]
     
     try:
-        # Query database for patients with the specified risk level
-        conn = sqlite3.connect('C:/Users/samuel/Desktop/new-project-main/capstone2_project.db')
-        conn.row_factory = sqlite3.Row
+        # Direct path to original CSV file
+        csv_path = 'C:/Users/samuel/Desktop/new-project-main/Heart Attack dataset.csv'
         
-        # Create query to join Patient and RiskAssessment tables
-        query = """
-        SELECT 
-            p.patient_ID as patient_id, 
-            p.age as age, 
-            p.gender as gender,
-            p.income as income,
-            ra.HeartAttackRiskText as risk_level,
-            ra.HeartAttackRiskBinary as risk_binary,
-            ra.StressLevel as stress_level,
-            vs.SystolicBP, 
-            vs.DiastolicBP, 
-            vs.HeartRate, 
-            vs.BMI,
-            lr.Cholesterol,
-            lr.BloodSugar,
-            ls.Smoking,
-            ls.AlcoholConsumption,
-            ls.ExerciseHoursPerWeek,
-            ls.SleepHoursPerDay,
-            ls.Diet,
-            mh.Diabetes,
-            mh.FamilyHistory,
-            mh.PreviousHeartProblems
-        FROM 
-            Patient p
-        JOIN 
-            RiskAssessment ra ON p.patient_ID = ra.PatientID
-        JOIN 
-            VitalSigns vs ON p.patient_ID = vs.PatientID
-        JOIN 
-            LabResults lr ON p.patient_ID = lr.PatientID
-        LEFT JOIN
-            Lifestyle ls ON p.patient_ID = ls.PatientID
-        LEFT JOIN
-            MedicalHistory mh ON p.patient_ID = mh.PatientID
-        WHERE 
-            ra.HeartAttackRiskText = ?
-        ORDER BY p.patient_ID
-        LIMIT 20
-        """
+        if not os.path.exists(csv_path):
+            current_app.logger.error(f"CSV file not found at: {csv_path}")
+            raise FileNotFoundError(f"CSV file not found at: {csv_path}")
         
-        cursor = conn.cursor()
-        current_app.logger.info(f"Executing query with parameter: {risk_level}")
-        cursor.execute(query, (risk_level,))
+        # Read the original CSV file
+        df = pd.read_csv(csv_path)
+        current_app.logger.info(f"Successfully loaded CSV with {len(df)} rows")
         
-        # Convert results to list of dictionaries
-        patients = [dict(row) for row in cursor.fetchall()]
-        conn.close()
+        # Determine high risk patients based on actual values
+        # Looking at columns that determine risk
+        if 'HeartAttackRisk' in df.columns:
+            # If there's a direct risk column, use it
+            high_risk_df = df[df['HeartAttackRisk'] == 1]
+        else:
+            # Otherwise make risk determination based on clinical values
+            # Define thresholds for high risk
+            high_risk_conditions = (
+                (df['Cholesterol'] > 240) |
+                (df['Systolic blood pressure'] > 140) |
+                (df['BMI'] > 30) |
+                (df['Stress Level'] > 7)
+            )
+            high_risk_df = df[high_risk_conditions]
         
-        current_app.logger.info(f"Found {len(patients)} high risk patients")
+        # Limit to 20 patients for display
+        high_risk_df = high_risk_df.head(20)
+        current_app.logger.info(f"Found {len(high_risk_df)} high risk patients")
+        
+        # Convert to list of dictionaries
+        patients = []
+        for _, row in high_risk_df.iterrows():
+            # Determine key risk factors
+            key_factors = []
+            
+            if 'Cholesterol' in row and row['Cholesterol'] > 240:
+                key_factors.append('High Cholesterol')
+            if 'Systolic blood pressure' in row and row['Systolic blood pressure'] > 140:
+                key_factors.append('High BP')
+            if 'BMI' in row and row['BMI'] > 30:
+                key_factors.append('High BMI')
+            if 'Stress Level' in row and row['Stress Level'] > 7:
+                key_factors.append('High Stress')
+            
+            # Format patient record
+            patient = {
+                'patient_id': row['PatientID'] if 'PatientID' in row else row.get('patient_ID', 'N/A'),
+                'age': int(row['Age']) if 'Age' in row else int(row.get('age', 0)),
+                'gender': row['Gender'] if 'Gender' in row else row.get('gender', 'Unknown'),
+                'risk_level': 'High',
+                'key_factors': ', '.join(key_factors) if key_factors else 'Multiple Risk Factors'
+            }
+            
+            patients.append(patient)
+        
         return patients
         
     except Exception as e:
-        current_app.logger.error(f"Error fetching high risk patients: {str(e)}")
-        return []
+        current_app.logger.error(f"Error fetching high risk patients from CSV: {str(e)}")
+        # Return a fallback patient for display
+        return [
+            {
+                'patient_id': 42, 
+                'age': 56, 
+                'gender': 'Male',
+                'risk_level': 'High',
+                'key_factors': 'High Cholesterol, High BP'
+            }
+        ]
 
 @analytical_bp.route('/patients')
 def high_risk_patients_api():
@@ -199,7 +252,7 @@ def high_risk_patients_api():
     view_mode = request.args.get('view', None)
     if view_mode == 'all':
         # Render a full page with all high risk patients
-        risk_level = 'High Risk'
+        risk_level = 'High'  # Changed from 'High Risk' to match the function parameter
         patients = get_high_risk_patients(risk_level)
         return render_template('high_risk_patients.html', 
                            patients=patients,

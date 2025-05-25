@@ -70,8 +70,8 @@
                                 <i class="fas fa-user fa-2x"></i>
                             </div>
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">5,443</div>
-                        <div class="text-success text-center"><i class="fas fa-arrow-up"></i> 50% since yesterday</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">{{ total_patients | default(0) | int | format_number }}</div>
+                        <div class="text-primary text-center">Total registered patients</div>
                     </div>
                 </div>
             </div>
@@ -85,8 +85,8 @@
                                 <i class="fas fa-heartbeat fa-2x"></i>
                             </div>
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">756</div>
-                        <div class="text-danger text-center"><i class="fas fa-arrow-down"></i> 35% since yesterday</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">{{ risk_counts.high | default(0) | int | format_number }}</div>
+                        <div class="text-danger text-center">Require immediate attention</div>
                     </div>
                 </div>
             </div>
@@ -100,8 +100,8 @@
                                 <i class="fas fa-bolt fa-2x"></i>
                             </div>
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">1,238</div>
-                        <div class="text-success text-center"><i class="fas fa-arrow-up"></i> 12% since yesterday</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">{{ risk_counts.medium | default(0) | int | format_number }}</div>
+                        <div class="text-warning text-center">Need regular monitoring</div>
                     </div>
                 </div>
             </div>
@@ -115,8 +115,8 @@
                                 <i class="fas fa-heart fa-2x"></i>
                             </div>
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">3,449</div>
-                        <div class="text-success text-center"><i class="fas fa-arrow-up"></i> 27% since yesterday</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center mt-3">{{ risk_counts.low | default(0) | int | format_number }}</div>
+                        <div class="text-success text-center">Healthy patients</div>
                     </div>
                 </div>
             </div>
@@ -178,10 +178,10 @@
                                         <td>{{ patient.gender }}</td>
                                         <td><span class="badge bg-danger">High</span></td>
                                         <td>
-                                            <!-- Build risk factors list using individual variables -->
-                                            {% set has_high_cholesterol = patient.Cholesterol > 200 %}
-                                            {% set has_high_bp = patient.SystolicBP > 140 %}
-                                            {% set has_high_bmi = patient.BMI > 30 %}
+                                            <!-- Build risk factors list using individual variables with safe attribute access -->
+                                            {% set has_high_cholesterol = patient.get('Cholesterol', 0) > 200 %}
+                                            {% set has_high_bp = patient.get('SystolicBP', 0) > 140 %}
+                                            {% set has_high_bmi = patient.get('BMI', 0) > 30 %}
                                             
                                             {% if has_high_cholesterol %}High Cholesterol{% endif %}
                                             {% if has_high_bp %}{% if has_high_cholesterol %}, {% endif %}High BP{% endif %}
@@ -221,10 +221,18 @@
     
     // Set sample data from server
     {% if sample_data %}
-        window.serverData.sampleData = {{ sample_data|tojson|safe }};
+    window.serverData.sampleData = {{ sample_data|tojson|safe }};
     {% else %}
-        window.serverData.sampleData = {};
+    window.serverData.sampleData = {};
     {% endif %}
+    
+    // Set risk count data
+    window.serverData.riskCounts = {
+        total: {{ total_patients|default(0)|int }},
+        high: {{ risk_counts.high|default(0)|int }},
+        medium: {{ risk_counts.medium|default(0)|int }},
+        low: {{ risk_counts.low|default(0)|int }}
+    };
 </script>
 
 <!-- Main application JavaScript -->
@@ -1223,6 +1231,22 @@
 
     // Initialize circular charts using Chart.js
     function initializeCircularCharts() {
+        // Get the risk counts from server data
+        const riskCounts = window.serverData.riskCounts;
+        const totalPatients = riskCounts.total || 1; // Prevent division by zero
+        
+        // Calculate percentages for each risk level
+        const highRiskPercent = Math.round((riskCounts.high / totalPatients) * 100) || 0;
+        const mediumRiskPercent = Math.round((riskCounts.medium / totalPatients) * 100) || 0;
+        const lowRiskPercent = Math.round((riskCounts.low / totalPatients) * 100) || 0;
+        
+        console.log('Risk distribution percentages:', {
+            high: highRiskPercent + '%',
+            medium: mediumRiskPercent + '%',
+            low: lowRiskPercent + '%',
+            total: totalPatients
+        });
+        
         // Simple configuration options for all charts
         const commonOptions = {
             cutout: '75%',
@@ -1242,7 +1266,7 @@
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [100, 0], // 100% full
+                            data: [100, 0], // 100% full for total patients
                             backgroundColor: ['#4361ee', '#e9efff'],
                             borderWidth: 0
                         }]
@@ -1262,7 +1286,7 @@
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [14, 86], // 14% of total
+                            data: [highRiskPercent, 100 - highRiskPercent], // Real percentage
                             backgroundColor: ['#ef4444', '#fff5f5'],
                             borderWidth: 0
                         }]
@@ -1282,7 +1306,7 @@
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [23, 77], // 23% of total
+                            data: [mediumRiskPercent, 100 - mediumRiskPercent], // Real percentage
                             backgroundColor: ['#f59e0b', '#fffbeb'],
                             borderWidth: 0
                         }]
@@ -1302,7 +1326,7 @@
                     type: 'doughnut',
                     data: {
                         datasets: [{
-                            data: [63, 37], // 63% of total
+                            data: [lowRiskPercent, 100 - lowRiskPercent], // Real percentage
                             backgroundColor: ['#10b981', '#ecfdf5'],
                             borderWidth: 0
                         }]

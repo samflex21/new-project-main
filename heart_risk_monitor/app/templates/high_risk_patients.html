@@ -33,17 +33,7 @@
                                     <td>{{ patient.gender }}</td>
                                     <td><span class="badge bg-danger">High</span></td>
                                     <td>
-                                        {% set has_high_cholesterol = patient.Cholesterol > 200 %}
-                                        {% set has_high_bp = patient.SystolicBP > 140 %}
-                                        {% set has_high_bmi = patient.BMI > 30 %}
-                                        
-                                        {% if has_high_cholesterol %}High Cholesterol{% endif %}
-                                        {% if has_high_bp %}{% if has_high_cholesterol %}, {% endif %}High BP{% endif %}
-                                        {% if has_high_bmi %}{% if has_high_cholesterol or has_high_bp %}, {% endif %}High BMI{% endif %}
-                                        
-                                        {% if not (has_high_cholesterol or has_high_bp or has_high_bmi) %}
-                                            Multiple Risk Factors
-                                        {% endif %}
+                                        {{ patient.key_factors }}
                                     </td>
                                     <td>
                                         <a href="/patients/{{ patient.patient_id }}" class="btn btn-sm btn-primary">
