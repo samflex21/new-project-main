@@ -6,7 +6,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-for-heart-risk-dashboard'
     
     # Database settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///heart_risk_data.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///C:/Users/samuel/Desktop/new-project-main/capstone2_project.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Application settings

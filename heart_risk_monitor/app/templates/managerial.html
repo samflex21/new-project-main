@@ -52,8 +52,9 @@
                 </div>
                 <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">124</div>
                 <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">TOTAL PATIENTS</div>
-                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
-                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+                <div style="position: relative; height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto; border-radius: 2px;">
+                    <div style="position: absolute; top: 0; left: 0; height: 4px; background-color: rgba(255,255,255,0.6); width: 82%; border-radius: 2px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -67,8 +68,9 @@
                 </div>
                 <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">48.7</div>
                 <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">AVERAGE AGE</div>
-                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
-                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+                <div style="position: relative; height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto; border-radius: 2px;">
+                    <div style="position: absolute; top: 0; left: 0; height: 4px; background-color: rgba(255,255,255,0.6); width: 48%; border-radius: 2px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -82,8 +84,9 @@
                 </div>
                 <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">22.6%</div>
                 <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">HIGH RISK %</div>
-                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
-                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+                <div style="position: relative; height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto; border-radius: 2px;">
+                    <div style="position: absolute; top: 0; left: 0; height: 4px; background-color: rgba(255,255,255,0.6); width: 22%; border-radius: 2px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -97,8 +100,9 @@
                 </div>
                 <div style="font-size: 3.5rem; font-weight: bold; margin-bottom: 0.5rem;">50/62</div>
                 <div style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">ASSESSMENTS</div>
-                <div style="height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto 15px auto; border-radius: 2px;"></div>
-                <a href="#" style="text-decoration: none; color: white; font-size: 0.8rem;">See details</a>
+                <div style="position: relative; height: 4px; background-color: rgba(255,255,255,0.2); width: 80%; margin: 0 auto; border-radius: 2px;">
+                    <div style="position: absolute; top: 0; left: 0; height: 4px; background-color: rgba(255,255,255,0.6); width: 80%; border-radius: 2px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -171,72 +175,14 @@
     var sampleData = {% if sample_data %}{{ sample_data|tojson|safe }}{% else %}null{% endif %};
     
     // Create mock data for the dashboard
-    function getMockManagerialData() {
+    // Empty fallback data structure in case API calls fail
+    function getEmptyDataStructure() {
         return {
-            // Population health data for charts
-            health_risk_income: [
-                {income_bracket: "Low Income", HeartAttackRiskText: "High Risk", count: 45},
-                {income_bracket: "Low Income", HeartAttackRiskText: "Medium Risk", count: 32},
-                {income_bracket: "Low Income", HeartAttackRiskText: "Low Risk", count: 23},
-                {income_bracket: "Middle Income", HeartAttackRiskText: "High Risk", count: 28},
-                {income_bracket: "Middle Income", HeartAttackRiskText: "Medium Risk", count: 42},
-                {income_bracket: "Middle Income", HeartAttackRiskText: "Low Risk", count: 50},
-                {income_bracket: "Upper Middle Income", HeartAttackRiskText: "High Risk", count: 15},
-                {income_bracket: "Upper Middle Income", HeartAttackRiskText: "Medium Risk", count: 38},
-                {income_bracket: "Upper Middle Income", HeartAttackRiskText: "Low Risk", count: 57},
-                {income_bracket: "High Income", HeartAttackRiskText: "High Risk", count: 10},
-                {income_bracket: "High Income", HeartAttackRiskText: "Medium Risk", count: 25},
-                {income_bracket: "High Income", HeartAttackRiskText: "Low Risk", count: 65}
-            ],
-            
-            // Diet score by age group
-            diet_score_age: [
-                {age_group: "18-29", average_score: 6.2},
-                {age_group: "30-44", average_score: 6.8},
-                {age_group: "45-59", average_score: 7.1},
-                {age_group: "60+", average_score: 7.9}
-            ],
-            
-            // Exercise and sleep data
-            exercise_sleep: [
-                {exercise_hours: 2, sleep_hours: 5, risk_level: "High", patient_count: 12},
-                {exercise_hours: 1, sleep_hours: 5, risk_level: "High", patient_count: 10},
-                {exercise_hours: 3, sleep_hours: 6, risk_level: "Medium", patient_count: 10},
-                {exercise_hours: 4, sleep_hours: 8, risk_level: "Medium", patient_count: 8},
-                {exercise_hours: 6, sleep_hours: 6, risk_level: "Medium", patient_count: 7},
-                {exercise_hours: 5, sleep_hours: 7, risk_level: "Low", patient_count: 15},
-                {exercise_hours: 7, sleep_hours: 8, risk_level: "Low", patient_count: 15}
-            ],
-            
-            // Smoking and stress data by gender
-            smoking_stress_gender: [
-                {gender: "Male", smoking_status: "Smoker", stress_level: "High", count: 42},
-                {gender: "Male", smoking_status: "Smoker", stress_level: "Medium", count: 35},
-                {gender: "Male", smoking_status: "Smoker", stress_level: "Low", count: 18},
-                {gender: "Male", smoking_status: "Non-Smoker", stress_level: "High", count: 30},
-                {gender: "Male", smoking_status: "Non-Smoker", stress_level: "Medium", count: 45},
-                {gender: "Male", smoking_status: "Non-Smoker", stress_level: "Low", count: 52},
-                {gender: "Female", smoking_status: "Smoker", stress_level: "High", count: 38},
-                {gender: "Female", smoking_status: "Smoker", stress_level: "Medium", count: 32},
-                {gender: "Female", smoking_status: "Smoker", stress_level: "Low", count: 15},
-                {gender: "Female", smoking_status: "Non-Smoker", stress_level: "High", count: 25},
-                {gender: "Female", smoking_status: "Non-Smoker", stress_level: "Medium", count: 48},
-                {gender: "Female", smoking_status: "Non-Smoker", stress_level: "Low", count: 58}
-            ],
-            
-            // Risk factors data
-            risk_factors: [
-                {factor: "Smoking", high_risk: 80, medium_risk: 45, low_risk: 10, impact: 8.5, trend: "down"},
-                {factor: "High Blood Pressure", high_risk: 75, medium_risk: 50, low_risk: 15, impact: 8.2, trend: "up"},
-                {factor: "Physical Inactivity", high_risk: 70, medium_risk: 40, low_risk: 20, impact: 7.8, trend: "stable"},
-                {factor: "Poor Diet", high_risk: 65, medium_risk: 50, low_risk: 25, impact: 7.5, trend: "up"},
-                {factor: "High Cholesterol", high_risk: 60, medium_risk: 55, low_risk: 30, impact: 7.2, trend: "stable"},
-                {factor: "Obesity", high_risk: 58, medium_risk: 52, low_risk: 35, impact: 7.0, trend: "up"},
-                {factor: "Diabetes", high_risk: 55, medium_risk: 48, low_risk: 40, impact: 6.8, trend: "up"},
-                {factor: "Stress", high_risk: 50, medium_risk: 60, low_risk: 45, impact: 6.5, trend: "up"},
-                {factor: "Family History", high_risk: 45, medium_risk: 40, low_risk: 38, impact: 6.0, trend: "stable"},
-                {factor: "Age", high_risk: 40, medium_risk: 65, low_risk: 50, impact: 5.8, trend: "stable"}
-            ]
+            health_risk_income: [],
+            diet_score_age: [],
+            exercise_sleep: [],
+            smoking_stress_gender: [],
+            risk_factors: []
         };
     }
     
@@ -268,20 +214,26 @@
             
             // Fetch data with reset filters
             fetchDashboardData();
-        });
-    });
-    
-    // Main dashboard initialization function
-    function initializeManagerialDashboard() {
-        console.log("Initializing the four required dashboard charts");
-        
-        // Clear any existing charts
-        if (window.Chart && Chart.helpers && Chart.helpers.each && Chart.instances) {
-            Chart.helpers.each(Chart.instances, function(instance) {
-                instance.destroy();
-            });
         }
         
+        function initializeCharts(data) {
+            console.log("Initializing the four required dashboard charts");
+            
+            // Clear any existing charts
+            if (window.Chart && Chart.helpers && Chart.helpers.each && Chart.instances) {
+                Chart.helpers.each(Chart.instances, function(instance) {
+                    instance.destroy();
+                });
+            }
+            
+            // Initialize the four specified charts
+            initializeIncomeRiskChart(data);
+            initializeDietScoreChart(data);
+            initializeExerciseSleepChart(data);
+            initializeSmokingStressChart(data);
+            
+            // Initialize risk factors table
+            updateRiskFactorsTable(data);
         // Initialize the four specified charts
         initializeIncomeRiskChart();
         initializeDietScoreChart();
@@ -578,12 +530,30 @@
     function fetchDashboardData() {
         console.log("Fetching dashboard data with filters");
         
-        // In a real app, this would be an API call to get data based on filters
-        // For now, we use mock data
-        const data = getMockManagerialData();
+        // Get filter values
+        const department = document.getElementById('department-filter')?.value || 'all';
+        const timePeriod = document.getElementById('time-period-filter')?.value || 'all';
+        const demographicSegment = document.getElementById('demographic-filter')?.value || 'all';
         
-        // Update dashboard with fetched data
-        updateDashboardData(data);
+        // Build query parameters
+        const params = new URLSearchParams();
+        if (department !== 'all') params.append('department', department);
+        if (timePeriod !== 'all') params.append('time_period', timePeriod);
+        if (demographicSegment !== 'all') params.append('demographic', demographicSegment);
+        
+        // Fetch data from the server API
+        fetch('/managerial/data?' + params.toString())
+            .then(response => response.json())
+            .then(data => {
+                // Update dashboard with fetched data
+                updateDashboardData(data);
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+                // Only fall back to mock data if the server request fails
+                const fallbackData = getMockManagerialData();
+                updateDashboardData(fallbackData);
+            });
     }
     
     // Function to update all charts with new data
@@ -666,14 +636,13 @@
             }
             
             // Fill row data
-            row.innerHTML = `
-                <td>${factor.factor}</td>
-                <td>${factor.high_risk}</td>
-                <td>${factor.medium_risk}</td>
-                <td>${factor.low_risk}</td>
-                <td>${factor.impact.toFixed(1)}/10</td>
-                <td>${trendIcon}</td>
-            `;
+            row.innerHTML = 
+                '<td>' + factor.factor + '</td>' +
+                '<td>' + factor.high_risk + '</td>' +
+                '<td>' + factor.medium_risk + '</td>' +
+                '<td>' + factor.low_risk + '</td>' +
+                '<td>' + factor.impact.toFixed(1) + '/10</td>' +
+                '<td>' + trendIcon + '</td>';
             
             tableBody.appendChild(row);
         });

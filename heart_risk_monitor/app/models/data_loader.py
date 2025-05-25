@@ -27,7 +27,9 @@ class DataLoader:
     
     def get_db_connection(self):
         """Get SQLite database connection"""
-        conn = sqlite3.connect(current_app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', ''))
+        # Directly use the capstone2_project.db file
+        db_path = 'C:/Users/samuel/Desktop/new-project-main/capstone2_project.db'
+        conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
         
@@ -134,12 +136,26 @@ def get_risk_distribution():
     """
     query = """
     SELECT 
-        HeartAttackRiskText as risk_level, 
+        CASE
+            WHEN HeartAttackRiskText IN ('high', 'High', 'HIGH', 'High Risk', 'high risk') THEN 'High'
+            WHEN HeartAttackRiskText IN ('medium', 'Medium', 'MEDIUM', 'Medium Risk', 'medium risk') THEN 'Medium'
+            WHEN HeartAttackRiskText IN ('low', 'Low', 'LOW', 'Low Risk', 'low risk') THEN 'Low'
+            ELSE 'Unknown'
+        END as risk_level,
         COUNT(*) as count
     FROM 
         RiskAssessment
+    WHERE
+        HeartAttackRiskText IS NOT NULL AND HeartAttackRiskText != ''
     GROUP BY 
-        HeartAttackRiskText
+        risk_level
+    ORDER BY
+        CASE
+            WHEN risk_level = 'Low' THEN 1
+            WHEN risk_level = 'Medium' THEN 2
+            WHEN risk_level = 'High' THEN 3
+            ELSE 4
+        END
     """
     
     try:
@@ -148,11 +164,26 @@ def get_risk_distribution():
         # Fallback to CSV
         df = data_loader.load_csv_data()
         
-        # Count risk levels
-        risk_counts = df['HeartAttackRiskText'].value_counts().to_dict()
+        # Normalize risk levels before counting
+        def normalize_risk(risk):
+            risk = str(risk).lower()
+            if 'high' in risk:
+                return 'High'
+            elif 'medium' in risk or 'mid' in risk:
+                return 'Medium'
+            elif 'low' in risk:
+                return 'Low'
+            else:
+                return 'Unknown'
         
-        # Format to match database response
-        return [{'risk_level': k, 'count': v} for k, v in risk_counts.items()]
+        # Apply normalization and count
+        df['NormalizedRisk'] = df['HeartAttackRiskText'].apply(normalize_risk)
+        risk_counts = df['NormalizedRisk'].value_counts().to_dict()
+        
+        # Format to match database response with proper ordering
+        risk_order = {'Low': 1, 'Medium': 2, 'High': 3, 'Unknown': 4}
+        sorted_risks = sorted(risk_counts.items(), key=lambda x: risk_order.get(x[0], 4))
+        return [{'risk_level': k, 'count': v} for k, v in sorted_risks]
 
 def get_population_data(department=None, time_period=None, population_segment=None):
     """

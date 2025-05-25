@@ -152,7 +152,7 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-white">High Risk Patients</h6>
-                <a href="{{ url_for('patient.patient_list', risk_level='high') }}" class="btn btn-sm btn-primary">
+                <a href="/analytical/patients?view=all" class="btn btn-sm btn-primary">
                     View All
                 </a>
             </div>
@@ -162,16 +162,50 @@
                         <thead>
                             <tr>
                                 <th>Patient ID</th>
-                                <th>Name</th>
                                 <th>Age</th>
-                                <th>Risk Score</th>
-                                <th>Key Factors</th>
+                                <th>Gender</th>
                                 <th>Risk Level</th>
+                                <th>Key Factors</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- This will be populated by JavaScript -->
+                            {% if high_risk_patients %}
+                                {% for patient in high_risk_patients[:10] %}
+                                    <tr>
+                                        <td>{{ patient.patient_id }}</td>
+                                        <td>{{ patient.age }}</td>
+                                        <td>{{ patient.gender }}</td>
+                                        <td><span class="badge bg-danger">High</span></td>
+                                        <td>
+                                            <!-- Build risk factors list using individual variables -->
+                                            {% set has_high_cholesterol = patient.Cholesterol > 200 %}
+                                            {% set has_high_bp = patient.SystolicBP > 140 %}
+                                            {% set has_high_bmi = patient.BMI > 30 %}
+                                            
+                                            {% if has_high_cholesterol %}High Cholesterol{% endif %}
+                                            {% if has_high_bp %}{% if has_high_cholesterol %}, {% endif %}High BP{% endif %}
+                                            {% if has_high_bmi %}{% if has_high_cholesterol or has_high_bp %}, {% endif %}High BMI{% endif %}
+                                            
+                                            {% if not (has_high_cholesterol or has_high_bp or has_high_bmi) %}
+                                                Multiple Risk Factors
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="/patients/{{ patient.patient_id }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-user"></i>
+                                            </a>
+                                            <a href="/patients/report/{{ patient.patient_id }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-file-medical"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No high-risk patients found</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -180,15 +214,24 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Sample data from the server
-    var sampleData = null;
-    var dashboardData = null;
+<!-- Data from server rendered as JavaScript variables -->
+<script type="text/javascript">
+    // Create a global data object to store server-provided data
+    window.serverData = {};
     
-    /* Set the sample data from server if available */
+    // Set sample data from server
     {% if sample_data %}
-    sampleData = {{ sample_data|tojson|safe }};
+        window.serverData.sampleData = {{ sample_data|tojson|safe }};
+    {% else %}
+        window.serverData.sampleData = {};
     {% endif %}
+</script>
+
+<!-- Main application JavaScript -->
+<script type="text/javascript">
+    // Reference server data from the global object
+    var dashboardData = null;
+    var sampleData = window.serverData.sampleData;
 
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize charts
@@ -219,6 +262,20 @@
             applyDateFilterBtn.addEventListener('click', fetchDashboardData);
         }
         
+        // Add event listener for View All high risk patients button
+        const viewAllHighRiskBtn = document.getElementById('view-all-high-risk');
+        if (viewAllHighRiskBtn) {
+            viewAllHighRiskBtn.addEventListener('click', function() {
+                // Fetch all high risk patients and display them
+                fetchHighRiskPatients().then(patients => {
+                    if (patients && Array.isArray(patients)) {
+                        // Show all patients instead of just the first 10
+                        updateHighRiskTable(patients, true);
+                    }
+                });
+            });
+        }
+        
         const applyRiskFilterBtn = document.getElementById('apply-risk-filter');
         if (applyRiskFilterBtn) {
             applyRiskFilterBtn.addEventListener('click', fetchDashboardData);
@@ -234,12 +291,78 @@
             refreshDataBtn.addEventListener('click', fetchDashboardData);
         }
         
-        // Initial data fetch
+        // Initial data fetch for dashboard charts
         fetchDashboardData();
         
-        // Directly populate high risk table with mock data to ensure it's visible
-        console.log('Directly populating high risk table with mock data...');
-        updateHighRiskTable(getMockPatientData());
+        // Force a direct manual test of the high risk patients table with real data
+        console.log('Directly testing high risk patients table with sample data...');
+        
+        // Make a direct API call to fetch high risk patients
+        fetch('/analytical/patients?risk_level=High%20Risk')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(patients => {
+                console.log('API directly returned', patients.length, 'high risk patients');
+                
+                if (patients && patients.length > 0) {
+                    console.log('First patient from API:', patients[0]);
+                    
+                    // Force update the table with this data
+                    const tableBody = document.querySelector('#highRiskTable tbody');
+                    tableBody.innerHTML = '';
+                    
+                    // Take the first 10 patients
+                    const patientsToShow = patients.slice(0, 10);
+                    
+                    // Manually create rows for each patient
+                    patientsToShow.forEach(patient => {
+                        const row = document.createElement('tr');
+                        
+                        // Get basic patient info
+                        const patientId = patient.patient_id;
+                        const patientAge = patient.age;
+                        const patientGender = patient.gender;
+                        
+                        // Create key factors string
+                        let keyFactors = [];
+                        if (patient.Cholesterol > 200) keyFactors.push('High Cholesterol');
+                        if (patient.SystolicBP > 140) keyFactors.push('High BP');
+                        if (patient.BMI > 30) keyFactors.push('High BMI');
+                        if (keyFactors.length === 0) keyFactors.push('Multiple Risk Factors');
+                        
+                        // Create row HTML
+                        row.innerHTML = `
+                            <td>${patientId}</td>
+                            <td>${patientAge}</td>
+                            <td>${patientGender}</td>
+                            <td><span class="badge bg-danger">High</span></td>
+                            <td>${keyFactors.join(', ')}</td>
+                            <td>
+                                <a href="/patients/${patientId}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-user"></i>
+                                </a>
+                                <a href="/patients/report/${patientId}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-file-medical"></i>
+                                </a>
+                            </td>
+                        `;
+                        
+                        // Add row to table
+                        tableBody.appendChild(row);
+                    });
+                    
+                    console.log('Table manually updated with', patientsToShow.length, 'patients');
+                } else {
+                    console.warn('API returned empty patients array');
+                }
+            })
+            .catch(error => {
+                console.error('Error in direct API test:', error);
+            });
     });
     
     function initializeAnalyticalDashboard() {
@@ -358,13 +481,14 @@
             // Lab Results Radar Chart
             const labCtx = document.getElementById('labResultsChart');
             if (labCtx) {
-                // Default mock data for lab results
-                const labData = [220, 110, 170, 140, 28];
+                // Initialize with default values that will be overwritten when data loads
+                const labData = [225, 120, 175, 10, 0.05];
+                const normalRanges = [200, 100, 150, 5, 0.04];
                 
                 window.labResultsChart = new Chart(labCtx.getContext('2d'), {
                     type: 'radar',
                     data: {
-                        labels: ['Cholesterol', 'Blood Sugar', 'Triglycerides', 'Systolic BP', 'BMI'],
+                        labels: ['Cholesterol', 'Blood Sugar', 'Triglycerides', 'CK-MB', 'Troponin'],
                         datasets: [{
                             label: 'Current Values',
                             data: labData,
@@ -376,7 +500,7 @@
                             pointHoverBorderColor: '#4e73df'
                         }, {
                             label: 'Normal Range',
-                            data: [200, 100, 150, 120, 25],
+                            data: normalRanges,
                             backgroundColor: 'rgba(28, 200, 138, 0.2)',
                             borderColor: '#1cc88a',
                             pointBackgroundColor: '#1cc88a',
@@ -390,6 +514,12 @@
                         maintainAspectRatio: false,
                         scales: {
                             r: {
+                                min: 0,
+                                max: 300,
+                                ticks: {
+                                    stepSize: 50,
+                                    display: true
+                                },
                                 angleLines: {
                                     display: true
                                 },
@@ -478,12 +608,12 @@
             updateDashboardData(sampleData);
             
             // Also update high risk table with the patient data from sample data
-            if (sampleData.patient_data && Array.isArray(sampleData.patient_data)) {
-                console.log('Using patient data from sample data');
-                updateHighRiskTable(sampleData.patient_data);
+            if (sampleData.patients && Array.isArray(sampleData.patients)) {
+                console.log('Using patients array from sample data');
+                updateHighRiskTable(sampleData.patients);
             } else {
-                console.log('No patient data in sample data, using mock data');
-                updateHighRiskTable(getMockPatientData());
+                console.log('No patient data in sample data, using empty data structure');
+                updateHighRiskTable(getEmptyPatientData());
             }
             return;
         }
@@ -503,8 +633,8 @@
                     console.log('High-risk patients data fetched successfully:', patientData);
                     updateHighRiskTable(patientData);
                 } else {
-                    console.warn('No patient data returned, using mock data');
-                    updateHighRiskTable(getMockPatientData());
+                    console.warn('No patient data returned, using empty data structure');
+                    updateHighRiskTable(getEmptyPatientData());
                 }
             })
             .catch(error => {
@@ -520,27 +650,89 @@
     
     // Function to fetch dashboard chart data
     function fetchDashboardChartData() {
-        // For now, return a promise with mock data
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(getMockDashboardData());
-            }, 500); // Simulate network delay
+        return new Promise((resolve, reject) => {
+            // Build the query parameters based on filters
+            const dateRange = document.getElementById('date-range-select')?.value || 'week';
+            let startDate = null;
+            let endDate = null;
+            let riskLevel = [];
             
-            // In production, this would be:
-            // return fetch('/api/dashboard/charts').then(response => response.json());
+            // Get custom date range if selected
+            if (dateRange === 'custom') {
+                startDate = document.getElementById('start-date').value;
+                endDate = document.getElementById('end-date').value;
+            }
+            
+            // Get selected risk levels
+            document.querySelectorAll('input[name="risk-level"]:checked').forEach(checkbox => {
+                riskLevel.push(checkbox.value);
+            });
+            
+            // Build the query string
+            const params = new URLSearchParams();
+            params.append('date_range', dateRange);
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            if (riskLevel.length > 0) {
+                riskLevel.forEach(level => params.append('risk_level', level));
+            }
+            
+            // Fetch data from the API
+            fetch('/analytical/data?' + params.toString())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Dashboard data fetched successfully:', data);
+                    resolve(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching dashboard data:', error);
+                    // Fall back to empty data structure if the server request fails
+                    console.warn('Falling back to empty data structure due to API error');
+                    resolve(getEmptyDashboardData());
+                });
         });
     }
     
     // Function to fetch high-risk patients data
     function fetchHighRiskPatients() {
-        // For now, return a promise with mock data
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(getMockPatientData());
-            }, 800); // Simulate network delay
+        return new Promise((resolve, reject) => {
+            // Build the query parameters
+            const params = new URLSearchParams();
+            params.append('risk_level', 'High Risk'); // Only get high risk patients
             
-            // In production, this would be:
-            // return fetch('/api/patients/high-risk').then(response => response.json());
+            console.log('Fetching high risk patients from API...');
+            
+            // Fetch data from the API
+            fetch('/analytical/patients?' + params.toString())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('High risk patients fetched successfully, count:', data.length);
+                    if (data.length === 0) {
+                        console.warn('No high risk patients returned from API');
+                    } else {
+                        console.log('Sample patient data:', data[0]);
+                        console.log('patient_id:', data[0].patient_id);
+                        console.log('age:', data[0].age);
+                        console.log('gender:', data[0].gender);
+                    }
+                    resolve(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching high risk patients:', error);
+                    // Fall back to empty data structure if the server request fails
+                    console.warn('Falling back to empty patient data due to API error');
+                    resolve(getEmptyPatientData());
+                });
         });
     }
     
@@ -554,13 +746,48 @@
                 let riskData = [54, 42, 28]; // Default values
                 
                 if (data.risk_distribution && Array.isArray(data.risk_distribution)) {
-                    riskLabels = [];
-                    riskData = [];
+                    // Create a map to aggregate counts by risk level
+                    const riskMap = new Map();
+                    riskMap.set('Low', 0);  // Initialize with zero counts
+                    riskMap.set('Medium', 0);
+                    riskMap.set('High', 0);
                     
+                    // Process the data and consolidate duplicate risk levels
                     for (const item of data.risk_distribution) {
-                        riskLabels.push(`${item.risk_level} Risk`);
-                        riskData.push(item.count);
+                        // Skip numeric risk levels or unknown formats
+                        if (!isNaN(item.risk_level) || item.risk_level === '0' || item.risk_level === '1' || item.risk_level === '2') {
+                            console.log('Skipping numeric risk level:', item.risk_level);
+                            continue;
+                        }
+                        
+                        // Normalize risk level text for consistency
+                        let normalizedRiskLevel;
+                        const riskText = item.risk_level.toLowerCase();
+                        
+                        if (riskText.includes('high')) {
+                            normalizedRiskLevel = 'High';
+                        } else if (riskText.includes('medium') || riskText.includes('mid')) {
+                            normalizedRiskLevel = 'Medium';
+                        } else if (riskText.includes('low')) {
+                            normalizedRiskLevel = 'Low';
+                        } else {
+                            // Skip any other non-standard risk levels
+                            console.log('Skipping non-standard risk level:', item.risk_level);
+                            continue;
+                        }
+                        
+                        // Add to our map, combining duplicates
+                        riskMap.set(normalizedRiskLevel, riskMap.get(normalizedRiskLevel) + item.count);
                     }
+                    
+                    // Standard risk levels in logical order: Low, Medium, High
+                    const standardRiskLevels = ['Low', 'Medium', 'High'];
+                    
+                    // Create arrays for the chart, using only our standard risk levels
+                    riskLabels = standardRiskLevels.map(level => `${level} Risk`);
+                    riskData = standardRiskLevels.map(level => riskMap.get(level));
+                    
+                    console.log('Processed standard risk distribution data:', riskLabels, riskData);
                 }
                 
                 window.riskDistributionChart.data.labels = riskLabels;
@@ -573,16 +800,63 @@
             
             // Update vital signs chart
             if (window.vitalSignsChart) {
-                const dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                const systolicData = [125, 128, 130, 135, 132, 138];
-                const diastolicData = [82, 85, 84, 88, 86, 90];
-                const heartRateData = [75, 78, 80, 77, 82, 85];
+                // Default values in case database data is not available
+                let dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                let systolicData = [125, 128, 130, 135, 132, 138];
+                let diastolicData = [82, 85, 84, 88, 86, 90];
+                let heartRateData = [75, 78, 80, 77, 82, 85];
                 
                 // Use actual data if available
                 if (data.vital_signs_timeline) {
-                    // Process actual data
-                } 
+                    console.log('Updating vital signs chart with timeline data');
+                    console.log('Dates array?', Array.isArray(data.vital_signs_timeline.dates));
+                    console.log('Dates:', data.vital_signs_timeline.dates);
+                    
+                    // Check if we're using mock data
+                    if (data.vital_signs_timeline.is_mock_data === true) {
+                        console.warn('WARNING: Using mock vital signs data instead of real database data!');
+                        // Add a warning banner above the chart if using mock data
+                        const vitalSignsCard = document.getElementById('vitalSignsChart').closest('.card');
+                        let warningBanner = vitalSignsCard.querySelector('.mock-data-warning');
+                        
+                        if (!warningBanner) {
+                            warningBanner = document.createElement('div');
+                            warningBanner.className = 'mock-data-warning alert alert-warning mb-3';
+                            warningBanner.innerHTML = '<strong>Notice:</strong> Using sample data. No matching records found in database.';
+                            const cardBody = vitalSignsCard.querySelector('.card-body');
+                            cardBody.insertBefore(warningBanner, cardBody.firstChild);
+                        }
+                    } else {
+                        // Remove warning banner if it exists
+                        const vitalSignsCard = document.getElementById('vitalSignsChart').closest('.card');
+                        const warningBanner = vitalSignsCard.querySelector('.mock-data-warning');
+                        if (warningBanner) {
+                            warningBanner.remove();
+                        }
+                        console.log('Using real database data for vital signs timeline');
+                    }
+                    
+                    // Extract data from the response
+                    if (Array.isArray(data.vital_signs_timeline.dates) && data.vital_signs_timeline.dates.length > 0) {
+                        dates = data.vital_signs_timeline.dates;
+                    }
+                    
+                    if (Array.isArray(data.vital_signs_timeline.systolic) && data.vital_signs_timeline.systolic.length > 0) {
+                        systolicData = data.vital_signs_timeline.systolic;
+                    }
+                    
+                    if (Array.isArray(data.vital_signs_timeline.diastolic) && data.vital_signs_timeline.diastolic.length > 0) {
+                        diastolicData = data.vital_signs_timeline.diastolic;
+                    }
+                    
+                    if (Array.isArray(data.vital_signs_timeline.heart_rate) && data.vital_signs_timeline.heart_rate.length > 0) {
+                        heartRateData = data.vital_signs_timeline.heart_rate;
+                    }
+                } else {
+                    console.warn('No vital signs timeline data available, using default values');
+                }
                 
+                // Update the chart with either real or default data
                 window.vitalSignsChart.data.labels = dates;
                 window.vitalSignsChart.data.datasets[0].data = systolicData;
                 window.vitalSignsChart.data.datasets[1].data = diastolicData;
@@ -595,14 +869,40 @@
             
             // Update lab results chart
             if (window.labResultsChart) {
-                const labData = [220, 110, 170, 140, 28];
+                // Set default values to ensure chart displays properly
+                let labLabels = ['Cholesterol', 'Blood Sugar', 'Triglycerides', 'CK-MB', 'Troponin'];
+                let labData = [225, 120, 175, 10, 0.05];
+                let normalRanges = [200, 100, 150, 5, 0.04];
                 
                 // Use actual data if available
-                if (data.metrics && data.metrics.lab_stats) {
-                    // Process actual data
+                if (data.lab_results) {
+                    console.log('Updating lab results chart with database data:', data.lab_results);
+                    
+                    // Update labels if available
+                    if (Array.isArray(data.lab_results.labels) && data.lab_results.labels.length > 0) {
+                        labLabels = data.lab_results.labels;
+                    }
+                    
+                    // Update current values if available
+                    if (Array.isArray(data.lab_results.current_values) && data.lab_results.current_values.length > 0) {
+                        labData = data.lab_results.current_values;
+                    }
+                    
+                    // Update normal ranges if available
+                    if (Array.isArray(data.lab_results.normal_ranges) && data.lab_results.normal_ranges.length > 0) {
+                        normalRanges = data.lab_results.normal_ranges;
+                    }
+                    
+                    // Display patient counts in console for debugging
+                    if (data.lab_results.patient_counts) {
+                        console.log('Patient counts with abnormal lab results:', data.lab_results.patient_counts);
+                    }
                 }
                 
+                // Update chart with the data
+                window.labResultsChart.data.labels = labLabels;
                 window.labResultsChart.data.datasets[0].data = labData;
+                window.labResultsChart.data.datasets[1].data = normalRanges;
                 window.labResultsChart.update();
                 console.log('Lab results chart updated');
             } else {
@@ -611,14 +911,57 @@
             
             // Update comparison chart
             if (window.patientComparisonChart) {
-                const chartPatientData = [28, 138, 90, 220, 110];
-                const populationData = [25, 120, 80, 190, 100];
+                // Default values if database data is not available
+                let chartLabels = ['BMI', 'Systolic BP', 'Diastolic BP', 'Cholesterol', 'Blood Sugar'];
+                let chartPatientData = [28, 138, 90, 220, 110];
+                let populationData = [25, 120, 80, 190, 100];
                 
                 // Use actual data if available
-                if (data.metrics) {
-                    // Process actual data
+                if (data.patient_metrics) {
+                    console.log('Updating patient metrics chart with database data:', data.patient_metrics);
+                    
+                    // Check if we're using mock data
+                    if (data.patient_metrics.is_mock_data === true) {
+                        console.warn('WARNING: Using mock patient metrics data instead of real database data!');
+                        // Add a warning banner above the chart if using mock data
+                        const metricsCard = document.getElementById('patientComparisonChart').closest('.card');
+                        let warningBanner = metricsCard.querySelector('.mock-data-warning');
+                        
+                        if (!warningBanner) {
+                            warningBanner = document.createElement('div');
+                            warningBanner.className = 'mock-data-warning alert alert-warning mb-3';
+                            warningBanner.innerHTML = '<strong>Notice:</strong> Using sample data. No matching records found in database.';
+                            const cardBody = metricsCard.querySelector('.card-body');
+                            cardBody.insertBefore(warningBanner, cardBody.firstChild);
+                        }
+                    } else {
+                        // Remove warning banner if it exists
+                        const metricsCard = document.getElementById('patientComparisonChart').closest('.card');
+                        const warningBanner = metricsCard.querySelector('.mock-data-warning');
+                        if (warningBanner) {
+                            warningBanner.remove();
+                        }
+                        console.log('Using real database data for patient metrics comparison');
+                    }
+                    
+                    // Update labels if available
+                    if (Array.isArray(data.patient_metrics.labels) && data.patient_metrics.labels.length > 0) {
+                        chartLabels = data.patient_metrics.labels;
+                    }
+                    
+                    // Update patient data if available
+                    if (Array.isArray(data.patient_metrics.patient_data) && data.patient_metrics.patient_data.length > 0) {
+                        chartPatientData = data.patient_metrics.patient_data;
+                    }
+                    
+                    // Update population data if available
+                    if (Array.isArray(data.patient_metrics.population_data) && data.patient_metrics.population_data.length > 0) {
+                        populationData = data.patient_metrics.population_data;
+                    }
                 }
                 
+                // Update the chart
+                window.patientComparisonChart.data.labels = chartLabels;
                 window.patientComparisonChart.data.datasets[0].data = chartPatientData;
                 window.patientComparisonChart.data.datasets[1].data = populationData;
                 window.patientComparisonChart.update();
@@ -635,7 +978,7 @@
         }
     }
     
-    function updateHighRiskTable(patientData) {
+    function updateHighRiskTable(patientData, showAll = false) {
         try {
             console.log('Starting to update high risk table with fetched data...');
             const tableBody = document.querySelector('#highRiskTable tbody');
@@ -662,27 +1005,12 @@
             // Determine high risk patients based on possible database structures
             let highRiskPatients = [];
             
-            // Try different possible risk level fields based on our database structure
-            highRiskPatients = patientData.filter(p => {
-                // Direct risk_level field
-                if (p.risk_level && p.risk_level.toLowerCase() === 'high') {
-                    return true;
-                }
-                
-                // SQLite structure: RiskAssessment.HeartAttackRiskText
-                if (p.HeartAttackRiskText && p.HeartAttackRiskText.toLowerCase() === 'high') {
-                    return true;
-                }
-                
-                // MongoDB structure: riskAssessment.heartAttackRiskText
-                if (p.riskAssessment && 
-                    p.riskAssessment.heartAttackRiskText && 
-                    p.riskAssessment.heartAttackRiskText.toLowerCase() === 'high') {
-                    return true;
-                }
-                
-                return false;
-            });
+            // All patients from this endpoint should be high risk
+            // Just make sure we have data to work with
+            highRiskPatients = patientData;
+            
+            // Debug what we're receiving
+            console.log('Patient data sample:', patientData[0]);
             
             console.log('Found high risk patients:', highRiskPatients.length);
             
@@ -694,17 +1022,21 @@
                 return;
             }
             
-            // Display top 5 high risk patients
-            const patientsToShow = highRiskPatients.slice(0, 5);
+            // Display all high risk patients or just the first 10 based on the showAll parameter
+            const patientsToShow = showAll ? highRiskPatients : highRiskPatients.slice(0, 10);
             
             // Add each patient to the table
+            console.log('Processing patients for display:', patientsToShow.length);
             for (const patient of patientsToShow) {
+                console.log('Processing patient:', patient);
                 const row = document.createElement('tr');
                 
-                // Handle different data formats that might come from the database
-                const patientId = patient.patient_ID || patient.patientId || patient.patient_id || patient.id || 'N/A';
-                const patientName = patient.name || `Patient ${patientId}`;
+                // Get data from the database response
+                const patientId = patient.patient_id || 'N/A';
                 const patientAge = patient.age || 'N/A';
+                const patientGender = patient.gender || 'Unknown';
+                
+                console.log(`Display values: ID=${patientId}, Age=${patientAge}, Gender=${patientGender}`);
                 
                 // Get risk score from different possible fields
                 let riskScore = 'High';
@@ -715,53 +1047,86 @@
                 }
                 
                 // Determine key factors based on patient data
-                let keyFactors = 'Multiple factors';
-                if (patient.key_factors) {
-                    keyFactors = patient.key_factors;
-                } else {
-                    // Generate key factors based on available data
-                    const factors = [];
-                    
-                    // Check vitals
-                    if (patient.SystolicBP > 140 || patient.DiastolicBP > 90) {
-                        factors.push('High BP');
-                    }
-                    if (patient.BMI > 30) {
-                        factors.push('Obesity');
-                    }
-                    if (patient.Cholesterol > 200) {
-                        factors.push('Cholesterol');
-                    }
-                    if (patient.BloodSugar > 120) {
-                        factors.push('Blood Sugar');
-                    }
-                    
-                    // Check lifestyle factors
-                    if (patient.lifestyle) {
-                        if (patient.lifestyle.smoking) factors.push('Smoking');
-                        if (patient.lifestyle.alcoholConsumption) factors.push('Alcohol');
-                        if (patient.lifestyle.obesity) factors.push('Obesity');
-                    }
-                    
-                    // Check medical history
-                    if (patient.medicalHistory) {
-                        if (patient.medicalHistory.diabetes) factors.push('Diabetes');
-                        if (patient.medicalHistory.familyHistory) factors.push('Family History');
-                        if (patient.medicalHistory.previousHeartProblems) factors.push('Previous Heart Issues');
-                    }
-                    
-                    if (factors.length > 0) {
-                        keyFactors = factors.slice(0, 3).join(', ');
-                    }
+                let keyFactors = [];
+                
+                // Scale the normalized values from database to clinical values
+                const scaledSystolicBP = patient.SystolicBP * 90 + 90; // 90-180 mmHg range
+                const scaledDiastolicBP = patient.DiastolicBP * 60 + 60; // 60-120 mmHg range
+                const scaledBMI = patient.BMI * 30 + 15; // 15-45 range
+                const scaledCholesterol = patient.Cholesterol * 150 + 150; // 150-300 mg/dL range
+                const scaledBloodSugar = patient.BloodSugar * 100 + 70; // 70-170 mg/dL range
+                
+                console.log(`Patient ${patientId} scaled values:`, {
+                    SystolicBP: scaledSystolicBP,
+                    DiastolicBP: scaledDiastolicBP,
+                    BMI: scaledBMI,
+                    Cholesterol: scaledCholesterol,
+                    BloodSugar: scaledBloodSugar
+                });
+                
+                // Smoking, drinking, and other lifestyle factors - scale normalized values
+                if (patient.Smoking > 0.5) { // Normalized threshold for smoking
+                    keyFactors.push('Smoking');
+                }
+                if (patient.AlcoholConsumption > 0.6) { // Normalized threshold for high alcohol
+                    keyFactors.push('Alcohol');
+                }
+                // Exercise is normalized 0-1, scale to 0-10 hours/week
+                const scaledExercise = patient.ExerciseHoursPerWeek * 10;
+                if (scaledExercise < 2) {
+                    keyFactors.push('Low Exercise');
+                }
+                // Sleep is normalized 0-1, scale to 4-10 hours/day
+                const scaledSleep = patient.SleepHoursPerDay * 6 + 4;
+                if (scaledSleep < 6) {
+                    keyFactors.push('Sleep Issues');
                 }
                 
+                // Check vitals using the scaled values
+                if (scaledSystolicBP > 140 || scaledDiastolicBP > 90) {
+                    keyFactors.push('High BP');
+                }
+                if (scaledBMI > 30) {
+                    keyFactors.push('Obesity');
+                }
+                if (scaledCholesterol > 200) {
+                    keyFactors.push('Cholesterol');
+                }
+                if (scaledBloodSugar > 120) {
+                    keyFactors.push('Blood Sugar');
+                }
+                
+                if (patient.ExerciseHoursPerWeek < 2) keyFactors.push('Low Exercise');
+                if (patient.SleepHoursPerDay < 6) keyFactors.push('Sleep Deficit');
+                
+                // Check medical history - direct from SQL query
+                if (patient.Diabetes === 1) keyFactors.push('Diabetes');
+                if (patient.FamilyHistory === 1) keyFactors.push('Family History');
+                if (patient.PreviousHeartProblems === 1) keyFactors.push('Previous Heart Issues');
+                
+                // Use a default if no factors identified
+                if (keyFactors.length === 0) {
+                    keyFactors.push('Multiple Risk Factors');
+                }
+                
+                // Take top 3 factors for display
+                let keyFactorsText = keyFactors.slice(0, 3).join(', ');
+                
+                // Debug the row before adding it
+                console.log('Adding row with data:', {
+                    patientId: patientId,
+                    age: patientAge,
+                    gender: patientGender,
+                    keyFactors: keyFactorsText
+                });
+
+                // Create the HTML for the row
                 row.innerHTML = `
                     <td>${patientId}</td>
-                    <td>${patientName}</td>
                     <td>${patientAge}</td>
-                    <td>${riskScore}</td>
-                    <td>${keyFactors}</td>
+                    <td>${patientGender}</td>
                     <td><span class="badge bg-danger">High</span></td>
+                    <td>${keyFactorsText}</td>
                     <td>
                         <a href="/patients/${patientId}" class="btn btn-sm btn-primary">
                             <i class="fas fa-user"></i>
@@ -821,136 +1186,40 @@
         link.click();
     }
     
-    // Mock data generator functions (for demonstration)
-    function getMockDashboardData() {
+    // Empty fallback data structures in case API calls fail
+    function getEmptyDashboardData() {
         return {
-            risk_distribution: [
-                { risk_level: 'Low', count: 54 },
-                { risk_level: 'Medium', count: 42 },
-                { risk_level: 'High', count: 28 }
-            ],
+            risk_distribution: [],
             metrics: {
-                avg_risk_score: 65.3,
+                avg_risk_score: 0,
                 vital_stats: {
-                    avg_bmi: 28.4,
-                    avg_systolic: 138.2,
-                    avg_diastolic: 90.1,
-                    avg_heart_rate: 85.3
+                    avg_bmi: 0,
+                    avg_systolic: 0,
+                    avg_diastolic: 0,
+                    avg_heart_rate: 0
                 },
                 lab_stats: {
-                    avg_cholesterol: 220.6,
-                    avg_blood_sugar: 110.2
+                    avg_cholesterol: 0,
+                    avg_blood_sugar: 0
                 }
             },
-            patient_data: getMockPatientData()
+            patient_data: []
         };
     }
     
-    function getMockPatientData() {
-        // Return mock high-risk patients data that aligns with the database schema
-        return [
-            {
-                patient_ID: 101,  // Match SQLite patient_ID format
-                patientId: 101,  // Match MongoDB patientId format
-                name: 'John Smith',
-                age: 58,
-                gender: 'Male',
-                SystolicBP: 165,
-                DiastolicBP: 95,
-                HeartRate: 88,
-                BMI: 32.1,
-                Cholesterol: 245,
-                BloodSugar: 130,
-                risk_level: 'High',
-                risk_score: 87,
-                key_factors: 'BP, Cholesterol, Family History',
-                riskAssessment: {
-                    heartAttackRiskText: 'High',
-                    stressLevel: 'High'
-                }
-            },
-            {
-                patient_ID: 102,
-                patientId: 102,
-                name: 'Mary Johnson',
-                age: 62,
-                gender: 'Female',
-                SystolicBP: 155,
-                DiastolicBP: 92,
-                HeartRate: 85,
-                BMI: 30.2,
-                Cholesterol: 235,
-                BloodSugar: 125,
-                risk_level: 'High',
-                risk_score: 82,
-                key_factors: 'Diabetes, Smoking, Age',
-                riskAssessment: {
-                    heartAttackRiskText: 'High',
-                    stressLevel: 'Medium'
-                }
-            },
-            {
-                patient_ID: 103,
-                patientId: 103,
-                name: 'Robert Davis',
-                age: 54,
-                gender: 'Male',
-                SystolicBP: 170,
-                DiastolicBP: 98,
-                HeartRate: 90,
-                BMI: 33.5,
-                Cholesterol: 260,
-                BloodSugar: 140,
-                risk_level: 'High',
-                risk_score: 78,
-                key_factors: 'BP, Obesity, Stress',
-                riskAssessment: {
-                    heartAttackRiskText: 'High',
-                    stressLevel: 'High'
-                }
-            },
-            {
-                patient_ID: 104,
-                patientId: 104,
-                name: 'Patricia Miller',
-                age: 65,
-                gender: 'Female',
-                SystolicBP: 160,
-                DiastolicBP: 94,
-                HeartRate: 86,
-                BMI: 31.8,
-                Cholesterol: 240,
-                BloodSugar: 135,
-                risk_level: 'High',
-                risk_score: 75,
-                key_factors: 'Age, Cholesterol, Low Activity',
-                riskAssessment: {
-                    heartAttackRiskText: 'High',
-                    stressLevel: 'Medium'
-                }
-            },
-            {
-                patient_ID: 105,
-                patientId: 105,
-                name: 'Michael Wilson',
-                age: 51,
-                gender: 'Male',
-                SystolicBP: 168,
-                DiastolicBP: 97,
-                HeartRate: 89,
-                BMI: 32.7,
-                Cholesterol: 250,
-                BloodSugar: 138,
-                risk_level: 'High',
-                risk_score: 72,
-                key_factors: 'Smoking, Family History, Stress',
-                riskAssessment: {
-                    heartAttackRiskText: 'High',
-                    stressLevel: 'High'
-                }
-            }
-        ];
+    function getEmptyPatientData() {
+        // Return a minimal placeholder array with one item for display purposes
+        return [{
+            patient_id: 'N/A',
+            name: 'Loading...',
+            age: '-',
+            risk_score: '-',
+            risk_level: 'unknown',
+            key_factors: 'Fetching data...',
+            HeartAttackRiskText: 'unknown'
+        }];
     }
+
 
     // Initialize circular charts using Chart.js
     function initializeCircularCharts() {
