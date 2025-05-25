@@ -9,25 +9,31 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Modern Google Fonts for Sidebar -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS with cache-busting parameter -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='1.1') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/classic-font.css', v='1.0') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css', v='1.2') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/icons-fix.css', v='1.0') }}">
     <!-- Gradient Circle Progress indicators -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gradient-circle-progress.css', v='1.0') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/circular-stats.css', v='1.0') }}">
     <!-- Colored stat cards CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/colored-cards.css', v='1.0') }}">
+    <!-- Modern Font CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-font.css', v='1.0') }}">
+
     <!-- Enhanced blackgray sidebar styling with classic fonts and circular indicators -->
     <style>
         /* Base sidebar styling */
         #sidebar {
-            background-color: #2d3436 !important;
-            background-image: linear-gradient(to bottom, #2d3436, #222831) !important;
+            background-color: #171923 !important;
+            background-image: linear-gradient(to bottom, #171923, #1A202C) !important;
             color: white !important;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.2) !important;
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2) !important;
+            font-family: 'Inter', sans-serif !important;
         }
         
         /* Dark theme for content area to match the image */
@@ -116,7 +122,7 @@
             padding: 0.4rem 0.75rem !important;
         }
         
-        /* Force ALL text in sidebar to be white and use Georgia font */
+        /* Force ALL text in sidebar to be white and use modern Inter font */
         #sidebar *,
         #sidebar a,
         #sidebar .nav-link,
@@ -133,8 +139,8 @@
         #sidebar .form-check-label,
         #sidebar .text-primary,
         #sidebar i {
-            color: white !important;
-            font-family: 'Georgia', 'Times New Roman', serif !important;
+            color: #f7fafc !important;
+            font-family: 'Inter', sans-serif !important;
         }
         
         /* Navigation link styling */
@@ -167,7 +173,13 @@
             <!-- Logo -->
             <div class="p-3 text-center sidebar-logo">
                 <a href="{{ url_for('analytical.dashboard') }}" class="text-white text-decoration-none">
-                    <span style="color: white; font-weight: bold; font-size: 0.95rem; font-family: 'Playfair Display', 'Georgia', serif;">❤️ Heart Risk Monitor</span>
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4299E1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path>
+                            <path d="M3.5 12h6l.5-1 2 4 .5-1h8"></path>
+                        </svg>
+                        <span style="color: white; font-weight: 600; font-size: 1.05rem; font-family: 'Poppins', sans-serif; letter-spacing: -0.01em;">Heart Risk Monitor</span>
+                    </span>
                 </a>
             </div>
             

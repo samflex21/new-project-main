@@ -1,0 +1,58 @@
+/* Modern Font Styling for Heart Risk Monitor */
+
+:root {
+  --font-primary: 'Inter', sans-serif;
+  --font-secondary: 'Poppins', sans-serif;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+/* Apply modern fonts to sidebar elements */
+#sidebar,
+#sidebar .nav-link,
+#sidebar .sidebar-heading,
+#sidebar .sidebar-brand {
+  font-family: var(--font-primary) !important;
+  letter-spacing: -0.02em;
+}
+
+/* Sidebar headings use Poppins for a slight contrast */
+#sidebar .sidebar-heading,
+#sidebar h1, 
+#sidebar h2, 
+#sidebar h3, 
+#sidebar h4, 
+#sidebar h5, 
+#sidebar h6 {
+  font-family: var(--font-secondary) !important;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.01em;
+}
+
+/* Make sidebar links more modern */
+#sidebar .nav-link {
+  font-weight: var(--font-weight-regular);
+  font-size: 0.85rem !important;
+}
+
+#sidebar .nav-link.active {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Logo styling */
+.sidebar-brand {
+  font-family: var(--font-secondary) !important;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.03em;
+}
+
+/* Sidebar headers */
+.sidebar-heading {
+  font-size: 0.7rem !important;
+  font-weight: var(--font-weight-medium) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em !important;
+}
