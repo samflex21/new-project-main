@@ -55,12 +55,12 @@ body #wrapper #sidebar,
 #sidebar h6,
 #sidebar .sidebar-heading,
 #sidebar .text-primary {
-    color: #ffffff !important;
+    color: rgba(247, 250, 252, 0.6) !important;
     font-weight: 600 !important;
     text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    font-size: 0.85rem !important;
-    font-family: 'Georgia', 'Times New Roman', serif !important;
+    letter-spacing: 0.08rem !important;
+    font-size: 0.7rem !important;
+    font-family: 'Poppins', sans-serif !important;
 }
 
 #sidebar .fas,

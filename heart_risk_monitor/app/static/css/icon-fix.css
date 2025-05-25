@@ -1,0 +1,61 @@
+/* Fix for FontAwesome icons in dark theme */
+
+/* Ensure icons are visible */
+.fas, .far, .fab, .fa {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900;
+  color: #f7fafc !important;
+}
+
+/* Fix for specific icons */
+.fa-filter:before {
+  content: "\f0b0";
+}
+
+.fa-check:before {
+  content: "\f00c";
+}
+
+.fa-undo:before {
+  content: "\f2ea";
+}
+
+.fa-search:before {
+  content: "\f002";
+}
+
+.fa-chart-line:before {
+  content: "\f201";
+}
+
+.fa-chart-bar:before {
+  content: "\f080";
+}
+
+.fa-users:before {
+  content: "\f0c0";
+}
+
+/* Fix for Apply Filter button icons */
+#apply-filter i:before,
+#apply-filters i:before {
+  content: "\f0b0"; /* Filter icon */
+}
+
+/* Fix for search icons */
+.sidebar-search-btn i:before {
+  content: "\f002"; /* Search icon */
+}
+
+/* Additional styling for section headers in sidebar */
+.filter-section h5 i,
+.filter-section h6 i {
+  margin-right: 8px;
+  color: #4299E1 !important;
+}
+
+/* Ensure buttons have proper icon spacing */
+.btn i {
+  margin-right: 6px;
+  vertical-align: -1px;
+}

@@ -16,7 +16,8 @@
     <!-- Custom CSS with cache-busting parameter -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='1.1') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css', v='1.2') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons-fix.css', v='1.0') }}">
+    <!-- Icon fixes - Added to fix broken icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icon-fix.css', v='1.0') }}">
     <!-- Gradient Circle Progress indicators -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gradient-circle-progress.css', v='1.0') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/circular-stats.css', v='1.0') }}">
@@ -183,38 +184,38 @@
                 </a>
             </div>
             
-            <!-- Navigation Menu with Unicode symbols instead of FontAwesome -->
+            <!-- Navigation Menu with FontAwesome icons and modern fonts -->
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a href="{{ url_for('analytical.dashboard') }}" 
                        class="nav-link py-3 px-3 {% if request.path.startswith('/analytical') %}active{% endif %}">
-                        <span class="me-2" style="font-family: 'Playfair Display', 'Georgia', serif;">📈</span>
-                        <span style="font-family: 'Playfair Display', 'Georgia', serif;">Analytical Dashboard</span>
+                        <span style="margin-right: 8px;">📈</span>
+                        <span>Analytical Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('managerial.dashboard') }}" 
                        class="nav-link py-3 px-3 {% if request.path.startswith('/managerial') %}active{% endif %}">
-                        <span class="me-2" style="font-family: 'Playfair Display', 'Georgia', serif;">📊</span>
-                        <span style="font-family: 'Playfair Display', 'Georgia', serif;">Population Health</span>
+                        <span style="margin-right: 8px;">📊</span>
+                        <span>Population Health</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('patient.patient_list') }}" 
                        class="nav-link py-3 px-3 {% if request.path.startswith('/patients') %}active{% endif %}">
-                        <span class="me-2" style="font-family: 'Playfair Display', 'Georgia', serif;">👥</span>
-                        <span style="font-family: 'Playfair Display', 'Georgia', serif;">Patient Records</span>
+                        <span style="margin-right: 8px;">👥</span>
+                        <span>Patient Records</span>
                     </a>
                 </li>
             </ul>
             
-            <!-- Search Box with Unicode symbol -->
+            <!-- Modern Search Box with FontAwesome icon -->
             <div class="p-3 sidebar-search">
                 <form action="{{ url_for('patient.patient_list') }}" method="get">
                     <div class="input-group">
-                        <input class="form-control sidebar-search-input" type="search" placeholder="Search Patient ID" name="search" style="font-family: 'Playfair Display', 'Georgia', serif;">
-                        <button class="btn sidebar-search-btn" type="submit">
-                            <span style="font-family: 'Playfair Display', 'Georgia', serif;">🔍</span>
+                        <input class="form-control sidebar-search-input" type="search" placeholder="Search Patient ID" name="search" style="background-color: #2D3748; color: #f7fafc; border-color: #4A5568;">
+                        <button class="btn sidebar-search-btn" type="submit" style="background-color: #4299E1; color: white; border: none;">
+                            🔍
                         </button>
                     </div>
                 </form>
